@@ -1,0 +1,71 @@
+---
+title: 'Building SatDump on macOS with Homebrew'
+description: 'Install Homebrew dependencies and build SatDump from source on macOS, or download a prebuilt release. Covers bundling a standalone app for distribution.'
+keywords: ['satdump', 'macos', 'homebrew', 'build', 'install', 'bundle', 'apple']
+---
+
+SatDump can be built on macOS using Homebrew. Dependency-free prebuilt macOS builds are also available on the [Releases page](https://github.com/altillimity/SatDump/releases) if you prefer not to compile from source.
+
+## Prerequisites
+
+Homebrew must be installed. If you don't have it, visit [brew.sh](https://brew.sh) for installation instructions.
+
+## Install dependencies
+
+Install all required build tools and libraries with a single Homebrew command:
+
+```bash
+brew install cmake dylibbundler libtool autoconf automake meson orc libxml2 zlib portaudio boost libusb nng volk libjpeg-turbo libtiff libomp libpng glfw3 libusb fftw libxml2 portaudio jemalloc nng zstd armadillo hdf5 sqlite3
+```
+
+## Build SatDump
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/SatDump/SatDump.git && cd SatDump
+    mkdir build && cd build
+    ```
+  </Step>
+  <Step title="Build additional dependencies">
+    ```bash
+    ../macOS/build_deps.sh
+    ```
+  </Step>
+  <Step title="Run CMake">
+    ```bash
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+    ```
+
+    <Note>
+      If you want to create a standalone bundled app, add `-DBUNDLING_MODE=ON` to the cmake command. This flag makes the binary suitable for use inside a macOS app bundle.
+    </Note>
+  </Step>
+  <Step title="Compile">
+    ```bash
+    make -j$(sysctl -n hw.logicalcpu)
+    ```
+  </Step>
+</Steps>
+
+## Running without installing
+
+If you built with `-DBUNDLING_MODE=OFF` (the default), create symlinks so SatDump can locate its pipelines, resources, and configuration:
+
+```bash
+ln -s ../pipelines .        # Symlink pipelines so it can run
+ln -s ../resources .        # Symlink resources so it can run
+ln -s ../satdump_cfg.json . # Symlink settings so it can run
+
+./satdump-ui
+```
+
+## Bundling a standalone app
+
+If you built with `-DBUNDLING_MODE=ON`, run the bundle script to produce a self-contained macOS application:
+
+```bash
+../macOS/bundle.sh
+```
+
+The finished bundled app is placed in `./MacApp`.

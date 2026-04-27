@@ -1,0 +1,191 @@
+---
+title: "Geographic Map Projections of Satellite Imagery"
+description: "Reproject decoded satellite imagery onto equirectangular, UTM, geostationary, or other map projections and export GeoTIFF files with SatDump."
+keywords: ["projections", "equirectangular", "GeoTIFF", "map projection", "geographic", "UTM", "geostationary"]
+---
+
+SatDump can reproject satellite imagery onto a geographic map, correcting for the satellite's orbital geometry and mapping each pixel to its ground position. You can combine images from multiple instruments or satellites in a single projection and export the result as a GeoTIFF for use in GIS software.
+
+## Adding imagery to a projection
+
+There are two ways to create a projection:
+
+**Option A — from an instrument view (fastest):**
+
+With an imaging instrument selected and a composite applied, click **Add to Proj**. SatDump creates a new **Projection** item in the **Others** section of the **Root** and adds the current composite or channel to it automatically.
+
+**Option B — manually:**
+
+<Steps>
+  <Step title="Add a Projection item">
+    Select **Add > Projection** from the menu bar. A new **Projection** item appears in the **Root**.
+  </Step>
+  <Step title="Select an instrument and send to handler">
+    Select the instrument in the **Root**, apply the composite you want, then choose **Current > Image to Handler** from the menu bar.
+  </Step>
+  <Step title="Assign the handler to the Projection">
+    Drag the image handler from the **Root** onto the **Projection** item.
+  </Step>
+</Steps>
+
+## Configuring and running a projection
+
+<Steps>
+  <Step title="Open the projection settings">
+    Click the **Projection** item in the **Root** to reveal its settings panel.
+  </Step>
+  <Step title="Choose a projection type">
+    Select a projection type from the dropdown. For most polar-orbiting satellites, **Equirectangular** (`equirec`) is the recommended starting point.
+  </Step>
+  <Step title="Enable automatic sizing">
+    Check **Auto Mode** to let SatDump calculate the projection bounds from the image metadata. Check **Auto Scale Mode** to set pixel scale automatically. Both are enabled by default and are sufficient for most passes.
+  </Step>
+  <Step title="Project the image">
+    Click **Project**. SatDump reprojects the image and adds the result to the **Projection** item.
+  </Step>
+</Steps>
+
+<Tip>
+  Selecting both **Auto Mode** and **Auto Scale Mode** produces a well-framed result for almost every polar-orbiting pass. Manual parameters are only needed for specific output sizes or GIS workflows.
+</Tip>
+
+## Projecting multiple instruments or satellites
+
+You can combine images from different instruments or different satellite passes into one projection.
+
+<Steps>
+  <Step title="Select the next instrument">
+    Click the instrument you want to add — either in the same satellite or in a different one under the **Root**.
+  </Step>
+  <Step title="Apply a composite">
+    Choose a preset or enter an expression, then click **Apply**.
+  </Step>
+  <Step title="Send to handler">
+    Select **Current > Image to Handler** from the menu bar.
+  </Step>
+  <Step title="Add to the existing Projection">
+    Drag the new image handler onto the existing **Projection** item in the **Root**.
+  </Step>
+  <Step title="Project again">
+    Click the **Projection** item, then click **Project**. The new image is blended into the existing projection.
+  </Step>
+</Steps>
+
+## Projection types
+
+| Type | Key | Best used for |
+|---|---|---|
+| Equirectangular | `equirec` | General-purpose; polar-orbiting passes |
+| Stereographic | `stereo` | Polar regions |
+| Universal Transverse Mercator | `utm` | Regional mapping with accurate distances |
+| Geostationary | `geos` | Full-disc geostationary imagery |
+| Tilted PERSpective | `tpers` | Simulated satellite view, geostationary-style |
+| Web Mercator | `webmerc` | Web map tile compatibility |
+
+## Common parameters
+
+These parameters apply to all projection types. In **Auto Mode** they are calculated automatically and can be omitted. Override them when you need precise control over the output.
+
+<ParamField path="lat0" type="number" default="0">
+  Latitude of the projection origin, in degrees. Positive values are north, negative values are south.
+</ParamField>
+
+<ParamField path="lon0" type="number" default="0">
+  Longitude of the projection origin, in degrees. Positive values are east, negative values are west.
+</ParamField>
+
+<ParamField path="offset_x" type="number" default="0">
+  Horizontal offset from the projection centre, in metres.
+</ParamField>
+
+<ParamField path="offset_y" type="number" default="0">
+  Vertical offset from the projection centre, in metres.
+</ParamField>
+
+<ParamField path="scalar_x" type="number">
+  Horizontal scale of the output image, in metres per pixel. A negative value flips the axis.
+</ParamField>
+
+<ParamField path="scalar_y" type="number">
+  Vertical scale of the output image, in metres per pixel. A negative value flips the axis (typically needed for north-up output).
+</ParamField>
+
+## Output format
+
+When the output format is set to `.tif`, SatDump writes a **GeoTIFF** file that embeds full georeferencing metadata. GeoTIFFs can be opened directly in QGIS, ArcGIS, GDAL, and other GIS tools.
+
+The following example shows a minimal projection configuration producing a GeoTIFF with an equirectangular projection in automatic mode:
+
+```json
+"Composite Name": {
+  "equation": "ch2, ch2, ch1",
+  "project": {
+    "config": {
+      "type": "equirec",
+      "auto": true,
+      "scalar_x": 0.016,
+      "scalar_y": -0.016
+    },
+    "draw_map_overlay": true,
+    "individual_equalize": true,
+    "img_format": ".tif"
+  }
+}
+```
+
+<Note>
+  The `scalar_y` value is negative in this example to produce a north-up image, which is the convention expected by most GIS software.
+</Note>
+
+## Extra parameters by projection type
+
+<AccordionGroup>
+  <Accordion title="UTM — extra parameters">
+    | Parameter | Type | Description |
+    |---|---|---|
+    | `zone` | integer | UTM zone number |
+    | `south` | boolean | `true` if the area is south of the equator, `false` if north |
+  </Accordion>
+
+  <Accordion title="GEOS — extra parameters">
+    | Parameter | Type | Description |
+    |---|---|---|
+    | `altitude` | float | Satellite altitude in metres |
+    | `sweep_x` | boolean | Sweep mode for GEOS projection |
+  </Accordion>
+
+  <Accordion title="TPERS — extra parameters">
+    | Parameter | Type | Description |
+    |---|---|---|
+    | `altitude` | float | Satellite altitude in metres (use `36000e3` for geostationary) |
+    | `tilt` | float | Tilt angle in degrees |
+    | `azimuth` | float | Azimuth angle in degrees |
+  </Accordion>
+
+  <Accordion title="Stereo — alternative mode parameters">
+    | Parameter | Type | Required | Description |
+    |---|---|---|---|
+    | `center_lat` | float | Yes | Latitude of the projection centre in degrees |
+    | `center_lon` | float | Yes | Longitude of the projection centre in degrees |
+    | `scale` | float | Yes | Scale in metres per pixel |
+    | `width` | integer | Yes | Output image width in pixels |
+    | `height` | integer | Yes | Output image height in pixels |
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Products viewer" icon="image" href="/guides/products-viewer">
+    View and export decoded satellite image products.
+  </Card>
+  <Card title="Projection config reference" icon="sliders" href="/reference/projection-config">
+    Full reference for all projection configuration options.
+  </Card>
+  <Card title="Image expressions" icon="function" href="/advanced/image-expressions">
+    Write composites and enhancements to feed into your projection.
+  </Card>
+  <Card title="Advanced scripting" icon="code" href="/advanced/scripting">
+    Automate projections with the AngelScript engine.
+  </Card>
+</CardGroup>

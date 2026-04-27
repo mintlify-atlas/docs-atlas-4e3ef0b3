@@ -1,0 +1,262 @@
+---
+title: 'SatDump Configuration: Complete Settings Reference'
+description: 'Complete reference for all SatDump settings: UI theme, scaling, image formats, QTH location, TLE updates, directories, and filename templates.'
+keywords: ['SatDump settings', 'configuration', 'satdump_cfg.json', 'QTH', 'TLE', 'image format', 'directories']
+---
+
+SatDump stores its configuration in `satdump_cfg.json` and exposes most user-facing options through **File > Settings**. The settings are organized into three groups: User Interface, General Settings, and Directories.
+
+## User interface
+
+These settings control the appearance and behavior of the SatDump desktop application.
+
+<AccordionGroup>
+  <Accordion title="Theme">
+    **Key:** `user_interface.theme`
+
+    Sets the application color scheme. Available values are `Dark` (default) and `Light`.
+  </Accordion>
+
+  <Accordion title="UI Scaling">
+    **Key:** `user_interface.manual_dpi_scaling` · **Type:** float · **Default:** `1.0`
+
+    Scales all UI elements. Use this to adapt SatDump to high-DPI displays or small screens.
+
+    | Value | Effect        |
+    |-------|---------------|
+    | `0.5` | Half size     |
+    | `1.0` | Normal (default) |
+    | `2.0` | Double size   |
+  </Accordion>
+
+  <Accordion title="Play Audio">
+    **Key:** `user_interface.play_audio` · **Type:** bool · **Default:** `true`
+
+    Automatically plays audio from pipelines that produce audio output, such as NOAA APT and Inmarsat Aero.
+  </Accordion>
+
+  <Accordion title="Finish processing when stopping live">
+    **Key:** `user_interface.finish_processing_after_live` · **Type:** bool · **Default:** `true`
+
+    When you press **Stop** on a live session, SatDump launches an offline processing task to finish working through the remainder of the pipeline.
+  </Accordion>
+
+  <Accordion title="Open Explorer after decoding">
+    **Key:** `user_interface.open_explorer_post_processing` · **Type:** bool · **Default:** `true`
+
+    Automatically opens the decoded data in the explorer when processing completes.
+  </Accordion>
+
+  <Accordion title="Demod FFT Waterfall">
+    **Key:** `user_interface.show_waterfall_demod_fft` · **Type:** bool · **Default:** `true`
+
+    Enables the FFT waterfall display inside demodulators.
+
+    <Note>
+    Enabling this increases CPU usage, particularly at high sample rates.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Recorder Floating Windows">
+    **Key:** `user_interface.recorder_floating_windows` · **Type:** bool · **Default:** `false`
+
+    Makes module windows in the recorder float freely so you can drag them to any position on screen.
+  </Accordion>
+
+  <Accordion title="Recorder Baseband Filename Milliseconds">
+    **Key:** `user_interface.recorder_baseband_filename_millis_precision` · **Type:** bool · **Default:** `false`
+
+    Appends millisecond precision to the timestamps in baseband recording filenames.
+  </Accordion>
+
+  <Accordion title="Show Status Bar">
+    **Key:** `user_interface.status_bar` · **Type:** bool · **Default:** `true`
+
+    Shows a status bar at the bottom of the window displaying the most recent log entry.
+  </Accordion>
+
+  <Accordion title="Lock LO setting">
+    **Key:** `user_interface.lock_xconverter_input` · **Type:** bool · **Default:** `true`
+
+    Prevents the LO (local oscillator) frequency field from accepting input while a source is running.
+  </Accordion>
+
+  <Accordion title="Advanced Mode">
+    **Key:** `user_interface.advanced_mode` · **Type:** bool · **Default:** `false`
+
+    Exposes all SatDump configuration options for editing.
+
+    <Warning>
+    Invalid configurations in Advanced Mode can result in crashes, data corruption, and other issues. Use at your own risk.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Disk space warning time">
+    **Key:** `user_interface.remaining_disk_space_time` · **Type:** int · **Default:** `30`
+
+    The number of seconds of remaining recording capacity at which SatDump warns you about low disk space. Set to `0` to disable the warning.
+  </Accordion>
+</AccordionGroup>
+
+## General settings
+
+<AccordionGroup>
+  <Accordion title="Log Level">
+    **Key:** `satdump_general.log_level` · **Default:** `trace`
+
+    Controls which log messages appear in the console. Messages below the selected level are suppressed.
+
+    | Value      | Description                            |
+    |------------|----------------------------------------|
+    | `trace`    | Every internal event (most verbose)    |
+    | `debug`    | Diagnostic details                     |
+    | `info`     | Normal operational messages            |
+    | `warn`     | Warnings about potential issues        |
+    | `error`    | Errors that affect processing          |
+    | `critical` | Fatal conditions only (least verbose)  |
+
+    <Note>
+    Changes to Log Level do not take effect during a live processing session. Restart SatDump to apply.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Save log file">
+    **Key:** `satdump_general.log_to_file` · **Type:** bool · **Default:** `true`
+
+    Saves the complete SatDump log (all levels) to a file. Useful for including in bug reports.
+  </Accordion>
+
+  <Accordion title="Product Image Format">
+    **Key:** `satdump_general.product_format` · **Default:** `png`
+
+    The file format used when saving raw image products from instruments.
+
+    | Value | Format                          | Notes                                          |
+    |-------|---------------------------------|------------------------------------------------|
+    | `png` | PNG Image                       | Recommended                                    |
+    | `tif` | TIFF Image                      | Lossless, widely compatible                    |
+    | `j2k` | JPEG 2000                       | Good compression, broad software support       |
+    | `jpg` | JPEG Image                      | Not recommended — lossy, degrades composites   |
+    | `pbm` | PBM/PGM Image                   | Very fast write, but produces large files      |
+    | `qoi` | Quite OK Image                  | Fast with compression; 8-bit only              |
+  </Accordion>
+
+  <Accordion title="Processed Image Format">
+    **Key:** `satdump_general.image_format` · **Default:** `png`
+
+    The file format used for processed images (composites, projections, etc.). Uses the same set of options as Product Image Format above.
+
+    This setting does not apply to raw image products or images transmitted in an already-viewable format.
+  </Accordion>
+
+  <Accordion title="OpenCL Device">
+    **Key:** `satdump_general.opencl_device`
+
+    Selects which OpenCL platform and device SatDump uses for GPU-accelerated processing.
+
+    ```json
+    "opencl_device": {
+      "platform": 0,
+      "device": 0
+    }
+    ```
+
+    Set `platform` and `device` to the zero-based index of the desired OpenCL platform and device on your system.
+  </Accordion>
+
+  <Accordion title="Automatically Process Products">
+    **Key:** `satdump_general.auto_process_products` · **Type:** bool · **Default:** `true`
+
+    Automatically generates image products (composites, etc.) once a pipeline finishes decoding.
+  </Accordion>
+
+  <Accordion title="QTH Location">
+    **Keys:** `satdump_general.qth_lat`, `qth_lon`, `qth_alt`
+
+    Your ground station coordinates. Used for pass prediction, map overlays, and projection calculations.
+
+    | Key        | Description                                     | Unit    |
+    |------------|-------------------------------------------------|---------|
+    | `qth_lat`  | Latitude (North positive, South negative)       | degrees |
+    | `qth_lon`  | Longitude (East positive, West negative)        | degrees |
+    | `qth_alt`  | Altitude above sea level                        | meters  |
+  </Accordion>
+
+  <Accordion title="Default QTH Label">
+    **Key:** `satdump_general.default_qth_label` · **Type:** string · **Default:** `QTH`
+
+    The label shown on the map for your station marker.
+  </Accordion>
+
+  <Accordion title="TLE Auto Update Interval">
+    **Key:** `satdump_general.tle_update_interval` · **Default:** `1 day`
+
+    How frequently SatDump fetches fresh TLE data from Celestrak. Updates happen at launch only.
+
+    Available intervals: `4 hours`, `1 day`, `3 days`, `7 days`, `14 days`, `Never`
+
+    <Warning>
+    Outdated TLEs reduce the accuracy of projections and pass predictions. Avoid setting this to Never unless you are managing TLEs manually.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Space-Track credentials (optional)">
+    **Keys:** `satdump_general.tle_space_track_login`, `tle_space_track_password`
+
+    Optional credentials for a [Space-Track.org](https://www.space-track.org) account. When provided, SatDump can retrieve historical TLEs for older passes.
+
+    Leave as the placeholder values if you do not have a Space-Track account.
+  </Accordion>
+</AccordionGroup>
+
+## Directories
+
+<AccordionGroup>
+  <Accordion title="Baseband Recorder directory">
+    **Key:** `satdump_directories.recording_path` · **Type:** path · **Default:** `.`
+
+    The folder where IQ recordings are saved when using the recorder.
+  </Accordion>
+
+  <Accordion title="Live Processing Output Autogeneration">
+    **Key:** `satdump_directories.live_processing_autogen` · **Type:** bool · **Default:** `true`
+
+    When enabled, SatDump automatically creates a timestamped output subfolder for each live processing session.
+  </Accordion>
+
+  <Accordion title="Live Processing Directory">
+    **Key:** `satdump_directories.live_processing_path` · **Type:** path · **Default:** `./live_output`
+
+    The parent folder under which auto-generated live processing output subfolders are created. Only used when autogeneration is enabled.
+  </Accordion>
+
+  <Accordion title="Default Input Directory">
+    **Key:** `satdump_directories.default_input_directory` · **Type:** path · **Default:** `.`
+
+    The folder that opens by default when you select an input file in offline processing.
+  </Accordion>
+
+  <Accordion title="Default Output Directory">
+    **Key:** `satdump_directories.default_output_directory` · **Type:** path · **Default:** `.`
+
+    The folder that opens by default when you select an output directory in offline processing.
+  </Accordion>
+
+  <Accordion title="Default Image Output Directory">
+    **Key:** `satdump_directories.default_image_output_directory` · **Type:** path · **Default:** `.`
+
+    The folder that opens by default when you save an image from the explorer.
+  </Accordion>
+
+  <Accordion title="Default Projection Output Directory">
+    **Key:** `satdump_directories.default_projection_output_directory` · **Type:** path · **Default:** `.`
+
+    The folder that opens by default when you save a projection from the explorer.
+  </Accordion>
+
+  <Accordion title="Image Filename Template">
+    **Key:** `satdump_directories.image_filename_template` · **Default:** `$i_$c`
+
+    The template used to construct image filenames when saving. See [Image Filename Template](/advanced/image-filename-template) for the full list of tokens and preset options.
+  </Accordion>
+</AccordionGroup>

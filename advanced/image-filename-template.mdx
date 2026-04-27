@@ -1,0 +1,66 @@
+---
+title: 'Image Filename Template: Presets and Custom Tokens'
+description: 'Customize how SatDump names saved satellite images using built-in presets or a custom token-based template with timestamp, instrument, and product fields.'
+keywords: ['filename template', 'image naming', 'SatDump settings', 'satellite image', 'custom filename']
+---
+
+SatDump uses a configurable filename template whenever it saves an image automatically or when you save one manually from the explorer, so you can control exactly how output files are named without renaming them after the fact.
+
+## Setting the template
+
+Navigate to **File > Settings > Directories > Image Filename Template** to choose a preset or enter a custom template.
+
+<Note>
+The default template is `$i_$c`, which produces filenames like `avhrr_3_AVHRR_124_False_Color_(Cloud_RGB)`.
+</Note>
+
+## Built-in presets
+
+Five ready-to-use presets cover the most common naming conventions:
+
+| Preset              | Template                                    | Example filename                                            |
+|---------------------|---------------------------------------------|-------------------------------------------------------------|
+| Default             | `$i_$c`                                     | `avhrr_3_AVHRR_124_False_Color_(Cloud_RGB)`                 |
+| Detailed            | `$i_$y-$M-$d_$h-$m-$sZ_$c`                | `avhrr_3_2025-01-11_10-51-19Z_AVHRR_124_False_Color_(Cloud_RGB)` |
+| Compact Detailed    | `$y$M$d$h$m_$O_$C`                          | `202501111041_NOAA_18_AVHRR_124_FALSE_COLOR_(CLOUD_RGB)`    |
+| Satellite and Time  | `$y-$M-$d $h$m UTC - $o`                   | `2025-01-11_1045_UTC_-_NOAA_18`                             |
+| WMO                 | `Z_SATDUMP_C_----_$y$M$d$h$m$s_$O_$I_$a`   | `Z_SATDUMP_C_----_20250111104431_NOAA_18_AVHRR_3_AVHRR124FCCRGB` |
+
+<Tip>
+Spaces in a template are automatically replaced with underscores in the resulting filename.
+</Tip>
+
+## Custom mode
+
+Select **Custom** to type your own template string. You can mix arbitrary characters (letters, hyphens, underscores, dots) with any of the tokens listed below.
+
+### Token reference
+
+| Token | Description                                    | Example value                      |
+|-------|------------------------------------------------|------------------------------------|
+| `$t`  | Unix timestamp                                 | `1736592312`                       |
+| `$y`  | Year                                           | `2025`                             |
+| `$M`  | Month (zero-padded)                            | `01`                               |
+| `$d`  | Day (zero-padded)                              | `11`                               |
+| `$h`  | Hour (zero-padded, UTC)                        | `10`                               |
+| `$m`  | Minute (zero-padded)                           | `45`                               |
+| `$s`  | Second (zero-padded)                           | `12`                               |
+| `$i`  | Instrument name (lowercase)                    | `avhrr_3`                          |
+| `$I`  | Instrument name (uppercase)                    | `AVHRR_3`                          |
+| `$c`  | Composite/product name as in config            | `3.75um_IR_(Rainbow)`              |
+| `$C`  | Composite/product name (uppercase)             | `3.75uM_IR_(RAINBOW)`              |
+| `$a`  | Composite/product name (abbreviated)           | `3.75IRR`                          |
+| `$o`  | Spacecraft name                                | `Meteor-M N°2`                     |
+| `$O`  | Spacecraft name (uppercase, special chars removed) | `METEOR-M N2`                  |
+
+### Example custom templates
+
+```text
+$y-$M-$d_$h$m_$i_$c
+```
+Produces: `2025-01-11_1045_avhrr_3_3.75um_IR_(Rainbow)`
+
+```text
+$t_$I_$a
+```
+Produces: `1736592312_AVHRR_3_3.75IRR`

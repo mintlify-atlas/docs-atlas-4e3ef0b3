@@ -1,0 +1,477 @@
+---
+title: 'Science, Deep-Space & Other Pipelines — SatDump'
+description: 'Complete parameter reference for SatDump pipelines covering Inmarsat, SpaceX, deep-space probes, science satellites, cubesats, and commercial missions.'
+keywords: ['satdump', 'pipeline', 'Inmarsat', 'SpaceX', 'DSCOVR', 'Stereo', 'Chandrayaan', 'deep space', 'science', 'cubesat', 'Falcon 9']
+---
+
+SatDump includes pipelines for a broad range of non-weather missions — from geostationary maritime communication satellites and commercial launch vehicle telemetry to lunar probes and interplanetary spacecraft. Each accordion section below covers all pipeline IDs and configurable parameters for a given mission or satellite family.
+
+<AccordionGroup>
+
+  <Accordion title="Inmarsat">
+
+    ### `inmarsat_std_c` — Inmarsat STD-C
+
+    Processes the Inmarsat STD-C L-band data channel, which carries short text messages including SafetyNET maritime weather and distress messages.
+
+    No additional parameters.
+
+    ---
+
+    ### `inmarsat_aero_6` — Inmarsat Aero 0.6k
+
+    <Warning>This pipeline is a work in progress (WIP) and may not produce complete results.</Warning>
+
+    Processes the Inmarsat Aero 0.6 kbit/s aeronautical satellite data unit channel.
+
+    No additional parameters.
+
+    ---
+
+    ### `inmarsat_aero_12` — Inmarsat Aero 1.2k
+
+    <Warning>This pipeline is a work in progress (WIP) and may not produce complete results.</Warning>
+
+    Processes the Inmarsat Aero 1.2 kbit/s channel.
+
+    No additional parameters.
+
+    ---
+
+    ### `inmarsat_aero_84` — Inmarsat Aero 8.4k
+
+    Processes the Inmarsat Aero 8.4 kbit/s high-speed aeronautical data channel.
+
+    No additional parameters.
+
+    ---
+
+    ### `inmarsat_aero_105` — Inmarsat Aero 10.5k
+
+    <Warning>This pipeline is a work in progress (WIP) and may not produce complete results.</Warning>
+
+    Processes the Inmarsat Aero 10.5 kbit/s channel.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Orbcomm">
+
+    ### `orbcomm_stx` — Orbcomm STX
+
+    Processes the Orbcomm subscriber transmitter (STX) VHF downlink, which carries machine-to-machine and IoT messaging data.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="SpaceX">
+
+    ### `falcon9_tlm` — Falcon 9 S-Band TLM
+
+    Processes the SpaceX Falcon 9 S-band telemetry downlink. Captures vehicle state and flight data during launch operations.
+
+    No additional parameters.
+
+    ---
+
+    ### `starship_tlm` — Starship S-Band TLM
+
+    Processes the SpaceX Starship S-band telemetry downlink.
+
+    No additional parameters.
+
+    ---
+
+    ### `crew_dragon_tlm` — Crew Dragon S-Band TLM
+
+    Processes the SpaceX Crew Dragon S-band telemetry downlink.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Stereo A/B">
+
+    ### `stereo_lr` — Stereo-A/B Low Rate
+
+    Processes the NASA STEREO (Solar TErrestrial RElations Observatory) low-rate science data downlink. Produces solar imager and in-situ particle data.
+
+    No additional parameters.
+
+    ---
+
+    ### `stereo_hr` — Stereo-A/B High Rate
+
+    Processes the STEREO high-rate data downlink, providing full-resolution imagery from the SECCHI and IMPACT instruments.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="DSCOVR">
+
+    ### `dscovr_tlm` — DSCOVR TLM Link
+
+    Processes the NOAA Deep Space Climate Observatory (DSCOVR) telemetry link from the Sun–Earth L1 Lagrange point.
+
+    No additional parameters.
+
+    ---
+
+    ### `dscovr_hr` — DSCOVR High-Rate Link
+
+    Processes the DSCOVR high-rate downlink, providing EPIC full-disk Earth imagery and NISTAR radiometric data.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Hinode">
+
+    ### `hinode_s_dump` — Hinode S-Band Dump
+
+    Processes the JAXA Hinode (Solar-B) S-band data dump. Produces solar X-ray, optical, and extreme ultraviolet imagery.
+
+    No additional parameters.
+
+    ---
+
+    ### `hinode_s_tlm` — Hinode S-Band TLM
+
+    Processes Hinode S-band telemetry.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Jason-3">
+
+    ### `jason3_link` — Jason-3 S-Band link
+
+    Processes the CNES/NOAA Jason-3 S-band downlink. Jason-3 is an ocean altimetry mission measuring sea surface height.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="AIM">
+
+    ### `aim_dump` — AIM dump
+
+    Processes the NASA Aeronomy of Ice in the Mesosphere (AIM) satellite dump. Produces CIPS noctilucent cloud imagery and SOFIE limb measurements.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="BlueWalker-3">
+
+    ### `bluewalker3_wide` — BlueWalker-3 S-Band Wide
+
+    Processes the AST SpaceMobile BlueWalker-3 S-band wide-beam downlink.
+
+    No additional parameters.
+
+    ---
+
+    ### `bluewalker3_narrow` — BlueWalker-3 S-Band Narrow
+
+    Processes the BlueWalker-3 S-band narrow-beam downlink.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Chandrayaan-3">
+
+    ### `chandrayaan3_link_1k` — Chandrayaan-3 1k Link
+
+    Processes the ISRO Chandrayaan-3 lunar mission downlink at 1 kbit/s.
+
+    No additional parameters.
+
+    ---
+
+    ### `chandrayaan3_link_2k` — Chandrayaan-3 2k Link
+
+    Processes the Chandrayaan-3 downlink at 2 kbit/s.
+
+    No additional parameters.
+
+    ---
+
+    ### `chandrayaan3_link_4k` — Chandrayaan-3 4k Link
+
+    Processes the Chandrayaan-3 downlink at 4 kbit/s.
+
+    No additional parameters.
+
+    ---
+
+    ### `chandrayaan3_link_8k` — Chandrayaan-3 8k Link
+
+    Processes the Chandrayaan-3 downlink at 8 kbit/s.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Cloudsat">
+
+    ### `cloudsat_link` — Cloudsat S-Band link
+
+    Processes the NASA CloudSat S-band downlink. CloudSat carries the CPR cloud-profiling radar instrument.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Coriolis">
+
+    ### `coriolis_db` — Coriolis S-Band Tactical DB
+
+    Processes the Coriolis satellite S-band tactical direct broadcast. Coriolis carries the WindSat polarimetric microwave radiometer.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Cosmos">
+
+    ### `cosmos_2558_dump` — Cosmos 2558 S-Band dump
+
+    Processes the Cosmos 2558 S-band dump.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Cryosat">
+
+    ### `cryosat_dump` — Cryosat X-Band dump
+
+    Processes the ESA CryoSat-2 X-band data dump. Produces SIRAL radar altimeter data for measuring ice sheet thickness and sea ice freeboard.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="MATS">
+
+    ### `mats_dump` — MATS dump
+
+    Processes the MATS (Mesospheric Airglow/Aerosol Tomography and Spectroscopy) satellite dump. MATS is a Swedish science satellite studying the mesosphere.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="UVSQ / INSPIRE-Sat7">
+
+    ### `inspiresat7_tlm` — INSPIRE-Sat7 TLM
+
+    Processes the INSPIRE-Sat 7 (carrying the UVSQ-SAT-NG instrument) telemetry stream.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="UmKA">
+
+    ### `umka_1_dump` — UmKA-1 dump
+
+    Processes the UmKA-1 satellite dump.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="TUBSAT / TUBIN">
+
+    ### `tubin_x_dump` — TUBIN X-Band Dump
+
+    Processes the TU Berlin TUBIN (TUBSat-N) X-band data dump. Produces thermal infrared wildfire detection imagery.
+
+    **Parameters:**
+
+    - `check_crc` — Check frames for CRC errors and discard invalid frames. Disabling CRC checking may allow slightly more data to be decoded from a marginal pass, but at the cost of data integrity. Default: `true`.
+
+  </Accordion>
+
+  <Accordion title="Tianwen-1">
+
+    ### `tianwen1_link` — Tianwen-1 Link
+
+    Processes the CNSA Tianwen-1 Mars mission downlink. Tianwen-1 placed an orbiter, lander, and rover (Zhurong) at Mars.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Orion">
+
+    ### `orion_link` — Orion S-Band
+
+    Processes the NASA Orion spacecraft S-band downlink.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="TGO (Mars)">
+
+    ### `tgo_link` — Mars TGO X-Band Link
+
+    Processes the ESA ExoMars Trace Gas Orbiter (TGO) X-band science and telemetry link from Mars orbit.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="KPLO (Danuri)">
+
+    ### `kplo_sband_link` — KPLO (Danuri) S-Band Link
+
+    Processes the Korea Pathfinder Lunar Orbiter (KPLO / Danuri) S-band downlink. Produces imagery and telemetry from lunar orbit.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Sentinel-6">
+
+    ### `sentinel6_dump` — Sentinel-6 Dump
+
+    Processes the Copernicus Sentinel-6 Michael Freilich X-band data dump. Produces AMR-C and GNSS-RO data for ocean altimetry.
+
+    No additional parameters.
+
+    ---
+
+    ### `sentinel6_tlm` — Sentinel-6 S-Band TLM
+
+    Processes the Sentinel-6 S-band telemetry link.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Iris">
+
+    ### `iris_s_dump` — IRIS S-Band Dump
+
+    Processes the NASA IRIS (Interface Region Imaging Spectrograph) S-band data dump. Produces UV solar spectrograph and slit-jaw imager data.
+
+    No additional parameters.
+
+    ---
+
+    ### `iris_dump` — IRIS X-Band Dump
+
+    Processes the IRIS X-band high-rate data dump.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Lucky-7">
+
+    ### `lucky7_link` — Lucky-7 UHF link
+
+    Processes the Lucky-7 cubesat UHF downlink.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="ViaSat-3">
+
+    ### `viasat3_tlm` — ViaSat-3 TLM
+
+    Processes the ViaSat-3 telemetry stream.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Syracuse 3B">
+
+    ### `syracuse3b_tlm` — Syracuse 3B TLM
+
+    Processes the French military Syracuse 3B satellite telemetry.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="SciSat-1">
+
+    ### `scisat1_dump` — SciSat-1 dump
+
+    Processes the Canadian SciSat-1 (ACE) satellite dump. Produces Fourier transform infrared spectrometer data for atmospheric chemistry.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="CALIPSO">
+
+    ### `CALIPSO` — CALIPSO S-Band dump
+
+    Processes the NASA/CNES CALIPSO (Cloud-Aerosol Lidar and Infrared Pathfinder Satellite Observation) S-band dump. Produces CALIOP lidar backscatter profiles.
+
+    <Note>This pipeline ID uses all-uppercase letters: `CALIPSO`. Pipeline IDs are case-sensitive.</Note>
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="YouthSat">
+
+    ### `youthsat_dump` — YouthSat dump
+
+    Processes the Indo-Russian YouthSat small satellite dump.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Other L-band missions">
+
+    ### `saral_l_band` — SARAL L-Band
+
+    Processes the ISRO/CNES SARAL satellite L-band Argos link. SARAL carries the AltiKa Ka-band altimeter.
+
+    No additional parameters.
+
+    ---
+
+    ### `angels_l_band` — Angels L-Band
+
+    Processes the CNES Angels (Argos Neo on a Generic Economical and Light Satellite) L-band Argos-4 downlink.
+
+    No additional parameters.
+
+    ---
+
+    ### `gazelle_l_band` — OTB-3/Gazelle L-Band
+
+    Processes the OTB-3/Gazelle satellite L-band link.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Yunhai">
+
+    ### `yunhai_ahrpt` — Yunhai AHRPT
+
+    <Warning>The Yunhai AHRPT downlink is encrypted. This pipeline will not produce decoded imagery.</Warning>
+
+    No additional parameters.
+
+  </Accordion>
+
+</AccordionGroup>

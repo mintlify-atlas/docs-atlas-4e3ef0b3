@@ -1,0 +1,33 @@
+---
+title: 'Installing SatDump on Windows'
+description: 'Download and install SatDump on Windows using the pre-built installer or portable app. Includes Visual C++ Runtime requirements and notes on source compilation.'
+keywords: ['satdump', 'windows', 'install', 'download', 'installer', 'portable', 'visual studio']
+---
+
+The quickest way to get SatDump running on Windows is to download the pre-built installer or portable app — no compilation is required.
+
+<Tip>
+  The installer and portable app from the Releases page are the fastest way to get started. You do not need to compile anything unless you have a specific reason to do so.
+</Tip>
+
+## Install SatDump
+
+<Steps>
+  <Step title="Download from the Releases page">
+    Head to the [Releases page](https://github.com/altillimity/SatDump/releases) and download either the **installer** or the **portable app**.
+  </Step>
+  <Step title="Install the Visual C++ Runtime">
+    SatDump is built with Visual Studio 2019 for x64 and requires the matching Visual C++ Runtime. It is likely already installed on your system, but if SatDump fails to launch, download and install it from the [Microsoft support page](https://support.microsoft.com/en-us/topic/the-latest-supported-visual-c-downloads-2647da03-1eea-4433-9aff-95f26a218cc0).
+  </Step>
+  <Step title="Run SatDump">
+    Launch **satdump-ui.exe** for the graphical interface, or **satdump.exe** for the command-line version.
+  </Step>
+</Steps>
+
+## Compilation
+
+Pre-built binaries cover the vast majority of use cases. If you need to compile SatDump yourself, refer to the dedicated Windows build documentation at [docs.satdump.org/build_windows.html](https://docs.satdump.org/build_windows.html).
+
+<Warning>
+  Mingw builds are **not** supported — VOLK will not work. Use Visual Studio 2019 for x64 when compiling on Windows.
+</Warning>

@@ -1,0 +1,334 @@
+---
+title: 'Hardware SDR Device Options Reference'
+description: 'Configuration options for all locally-connected USB SDR hardware devices supported by SatDump, including gain, bandwidth, and AGC settings.'
+---
+
+SatDump supports a wide range of locally-connected software-defined radio devices. This page documents every configuration option available for each hardware device, so you can tune your setup precisely from the CLI or the UI.
+
+## Discovering devices
+
+Before running a pipeline, use `satdump sdr_probe` to list all devices detected on your system along with their device IDs:
+
+```bash
+satdump sdr_probe
+```
+
+The output shows each device's source ID (e.g. `rtlsdr`, `airspy`, `hackrf`), which you pass as `--source` in CLI commands.
+
+## CLI usage pattern
+
+Use the following pattern to start a live pipeline with any hardware SDR device:
+
+```bash
+satdump legacy live [pipeline] [output] --source [device_id] --samplerate [rate] --frequency [freq] [--device_option value]
+```
+
+For example, to receive NOAA APT with an RTL-SDR at 137.9 MHz and a sample rate of 2.4 MSPS:
+
+```bash
+satdump legacy live noaa_apt /tmp/output --source rtlsdr --samplerate 2.4e6 --frequency 137.9e6 --gain 40
+```
+
+Each `--device_option value` pair maps directly to the option names listed below for your device.
+
+## Hardware devices
+
+<AccordionGroup>
+
+  <Accordion title="Airspy">
+    The Airspy R2 and Airspy Mini are supported via the `airspy` source ID.
+
+    <ParamField path="gain_type" type="number">
+      Selects the gain mode. `0` = Sensitive, `1` = Linear, `2` = Manual. Use Manual to set `lna_gain`, `mixer_gain`, and `vga_gain` independently.
+    </ParamField>
+
+    <ParamField path="general_gain" type="number">
+      Overall gain for Sensitive and Linear modes. Ranges from `0` to `21` dBs. Has no effect in Manual mode.
+    </ParamField>
+
+    <ParamField path="lna_gain" type="number">
+      LNA gain setting. Used only when `gain_type` is `2` (Manual).
+    </ParamField>
+
+    <ParamField path="mixer_gain" type="number">
+      Mixer gain setting. Used only when `gain_type` is `2` (Manual).
+    </ParamField>
+
+    <ParamField path="vga_gain" type="number">
+      VGA gain setting. Used only when `gain_type` is `2` (Manual).
+    </ParamField>
+
+    <ParamField path="bias" type="boolean">
+      Enable Bias-Tee power on the SMA port.
+    </ParamField>
+
+    <ParamField path="lna_agc" type="boolean">
+      Enable the LNA automatic gain control.
+    </ParamField>
+
+    <ParamField path="mixer_agc" type="boolean">
+      Enable the Mixer automatic gain control.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="AirspyHF">
+    The AirspyHF and AirspyHF+ are supported via the `airspyhf` source ID.
+
+    <ParamField path="agc_mode" type="number">
+      AGC mode. `0` = disabled, `1` = LOW, `2` = HIGH.
+    </ParamField>
+
+    <ParamField path="attenuation" type="number">
+      Attenuation in dBs.
+    </ParamField>
+
+    <ParamField path="hf_lna" type="boolean">
+      Enable or disable the HF LNA.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="HackRF">
+    The HackRF One is supported via the `hackrf` source ID.
+
+    <ParamField path="amp" type="boolean">
+      Enable the main (non-programmable) RF amplifier.
+    </ParamField>
+
+    <ParamField path="lna_gain" type="number">
+      LNA gain in dBs.
+    </ParamField>
+
+    <ParamField path="vga_gain" type="number">
+      VGA (baseband) gain in dBs.
+    </ParamField>
+
+    <ParamField path="bias" type="boolean">
+      Enable Bias-Tee power on the SMA port.
+    </ParamField>
+
+    <ParamField path="manual_bw" type="boolean">
+      Enable manual bandwidth filter selection.
+    </ParamField>
+
+    <ParamField path="manual_bw_value" type="number">
+      Bandwidth filter width in Hz. Only used when `manual_bw` is enabled.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="BladeRF">
+    BladeRF devices are supported via the `bladerf` source ID.
+
+    <ParamField path="gain_mode" type="number">
+      Gain control mode. `0` = device default, `1` = manual, `2` = fast AGC, `3` = slow AGC, `4` = hybrid AGC.
+    </ParamField>
+
+    <ParamField path="gain" type="number">
+      General gain in dBs. Used when `gain_mode` is `1` (manual).
+    </ParamField>
+
+    <ParamField path="bias" type="boolean">
+      Enable Bias-Tee power. BladeRF 2.0 only.
+    </ParamField>
+
+    <ParamField path="manual_bw" type="boolean">
+      Enable manual bandwidth filter selection.
+    </ParamField>
+
+    <ParamField path="manual_bw_value" type="number">
+      Bandwidth filter width in Hz. Only used when `manual_bw` is enabled.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="LimeSDR">
+    LimeSDR devices are supported via the `limesdr` source ID.
+
+    <ParamField path="gain" type="number">
+      Gain in dBs.
+    </ParamField>
+
+    <ParamField path="manual_bw" type="boolean">
+      Enable manual bandwidth filter selection.
+    </ParamField>
+
+    <ParamField path="manual_bw_value" type="number">
+      Bandwidth filter width in Hz. Only used when `manual_bw` is enabled.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="RTL-SDR">
+    RTL-SDR dongles are supported via the `rtlsdr` source ID.
+
+    <ParamField path="gain" type="number">
+      Device gain in dBs.
+    </ParamField>
+
+    <ParamField path="agc" type="boolean">
+      Enable or disable the onboard AGC.
+    </ParamField>
+
+    <ParamField path="bias" type="boolean">
+      Enable Bias-Tee power on the SMA port.
+    </ParamField>
+
+    <ParamField path="ppm_correction" type="number">
+      Frequency correction for dongles with oscillator drift, in parts per million (PPM).
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="Aaronia Spectran V6">
+    The Aaronia Spectran V6 is supported via the `aaronia` source ID.
+
+    <ParamField path="ref_level" type="number">
+      Reference level in dBs.
+    </ParamField>
+
+    <ParamField path="usb_compression" type="number">
+      USB transfer compression mode. `0` = auto, `1` = raw, `2` = compressed.
+    </ParamField>
+
+    <ParamField path="agc_mode" type="number">
+      AGC mode. `0` = manual, `1` = peak, `2` = power.
+    </ParamField>
+
+    <ParamField path="enable_amp" type="boolean">
+      Enable the built-in amplifier.
+    </ParamField>
+
+    <ParamField path="enable_preamp" type="boolean">
+      Enable the built-in preamplifier.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="SDDC (RX888 / RX999)">
+    <Note>
+      Support for SDDC devices (RX888, RX999, and similar) is experimental. Things may not work as expected.
+    </Note>
+
+    SDDC devices are supported via the `sddc` source ID.
+
+    <ParamField path="mode" type="number">
+      Operating mode. `0` = HF, `1` = VHF.
+    </ParamField>
+
+    <ParamField path="rf_gain" type="number">
+      RF gain in dBs.
+    </ParamField>
+
+    <ParamField path="if_gain" type="number">
+      IF gain in dBs.
+    </ParamField>
+
+    <ParamField path="bias" type="boolean">
+      Enable Bias-Tee power.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="SDRPlay">
+    <Note>
+      Some options are device-specific and may not be available on all SDRPlay models.
+    </Note>
+
+    SDRPlay devices (RSP1, RSP1A, RSPdx, etc.) are supported via the `sdrplay` source ID.
+
+    <ParamField path="lna_gain" type="number">
+      LNA gain in dBs.
+    </ParamField>
+
+    <ParamField path="if_gain" type="number">
+      IF gain in dBs.
+    </ParamField>
+
+    <ParamField path="bias" type="boolean">
+      Enable Bias-Tee power.
+    </ParamField>
+
+    <ParamField path="am_notch" type="boolean">
+      Enable the AM notch filter.
+    </ParamField>
+
+    <ParamField path="fm_notch" type="boolean">
+      Enable the FM notch filter.
+    </ParamField>
+
+    <ParamField path="dab_notch" type="boolean">
+      Enable the DAB notch filter.
+    </ParamField>
+
+    <ParamField path="am_port" type="boolean">
+      Select the AM antenna port.
+    </ParamField>
+
+    <ParamField path="antenna_input" type="number">
+      Select a specific antenna input. `0` is the first input.
+    </ParamField>
+
+    <ParamField path="agc_mode" type="number">
+      AGC mode. `0` = disabled, `1` = 5 Hz, `2` = 50 Hz, `3` = 500 Hz.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="USRP">
+    Ettus Research USRP devices are supported via the `usrp` source ID.
+
+    <ParamField path="gain" type="number">
+      Device gain in dBs.
+    </ParamField>
+
+    <ParamField path="channel" type="number">
+      Channel ID to use on multi-channel devices.
+    </ParamField>
+
+    <ParamField path="antenna" type="string">
+      Antenna port ID (e.g. `TX/RX`, `RX2`).
+    </ParamField>
+
+    <ParamField path="bit_depth" type="number">
+      Sample bit depth. `16` is supported on all USRP devices; `8` and `12` are available on some models.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="MiriSDR">
+    MiriSDR devices are supported via the `mirisdr` source ID.
+
+    <ParamField path="gain" type="number">
+      Device gain in dBs.
+    </ParamField>
+
+    <ParamField path="bias" type="boolean">
+      Enable Bias-Tee power.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="PlutoSDR">
+    The ADALM-PLUTO is supported via the `plutosdr` source ID.
+
+    <ParamField path="gain" type="number">
+      Device gain in dBs.
+    </ParamField>
+
+    <ParamField path="gain_mode" type="number">
+      Gain control mode. `1` = Manual, `2` = Fast Attack AGC, `3` = Slow Attack AGC, `4` = Hybrid AGC.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="File source">
+    <Note>
+      It is not recommended to use the file source for live or autotrack sessions — use offline decoding instead. It can be useful for testing pipelines with a pre-recorded baseband.
+    </Note>
+
+    Use `file` as the source ID to replay a baseband recording.
+
+    <ParamField path="file_path" type="string" required>
+      Path to the baseband file. On Linux and macOS you can use `/dev/stdin` to pipe data from another process.
+    </ParamField>
+
+    <ParamField path="baseband_type" type="string" required>
+      Sample format of the baseband file. Accepted values: `u8`, `s8`, `s16`, `f32`, `ziq`.
+    </ParamField>
+
+    <ParamField path="iq_swap" type="boolean">
+      Swap I and Q samples in the stream.
+    </ParamField>
+  </Accordion>
+
+</AccordionGroup>

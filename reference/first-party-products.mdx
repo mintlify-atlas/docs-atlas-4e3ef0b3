@@ -1,0 +1,38 @@
+---
+title: 'First-Party Products Support Reference'
+description: 'Supported official agency data products you can process with SatDump, including EUMETSAT MSG, MTG, Metop, and Sentinel-3 datasets.'
+---
+
+SatDump can process pre-existing official data files obtained directly from space and meteorological agencies, without requiring a live SDR capture. These are called first-party products — they are the authoritative Level 1 data files distributed by the agencies themselves, and SatDump handles the decoding and visualization for you.
+
+<Note>
+  This module is experimental and may contain bugs. You are encouraged to test it and report any issues on the [SatDump GitHub issue tracker](https://github.com/SatDump/SatDump/issues).
+</Note>
+
+## How to use first-party products
+
+All first-party products must be processed through a single pipeline:
+
+> **Data Stores/Archives Formats (NOAA/EUMETSAT/CMA/NASA), Experimental**
+
+Point this pipeline at the directory or file you downloaded from the agency's data portal, and SatDump will detect the product format and decode it automatically.
+
+## Supported products
+
+The table below lists every product SatDump currently supports, along with the satellite, instrument, and a direct link to the agency's data portal where you can download the files.
+
+### EUMETSAT
+
+| Product | Satellite | Instrument | Data portal link |
+|---|---|---|---|
+| High Rate SEVIRI Level 1.5 Image Data — MSG — 0 degree | MSG | SEVIRI | [EO:EUM:DAT:MSG:HRSEVIRI](https://data.eumetsat.int/product/EO:EUM:DAT:MSG:HRSEVIRI) |
+| High Rate SEVIRI Level 1.5 Image Data — MSG — Indian Ocean | MSG | SEVIRI | [EO:EUM:DAT:MSG:HRSEVIRI-IODC](https://data.eumetsat.int/product/EO:EUM:DAT:MSG:HRSEVIRI-IODC) |
+| Rapid Scan High Rate SEVIRI Level 1.5 Image Data — MSG | MSG | SEVIRI | [EO:EUM:DAT:MSG:MSG15-RSS](https://data.eumetsat.int/product/EO:EUM:DAT:MSG:MSG15-RSS) |
+| FCI Level 1c Normal Resolution Image Data — MTG — 0 degree | MTG | FCI | [EO:EUM:DAT:0662](https://data.eumetsat.int/product/EO:EUM:DAT:0662) |
+| FCI Level 1c High Resolution Image Data — MTG — 0 degree | MTG | FCI | [EO:EUM:DAT:0665](https://data.eumetsat.int/product/EO:EUM:DAT:0665) |
+| AVHRR Level 1B — Metop — Global | Metop | AVHRR | [EO:EUM:DAT:METOP:AVHRRL1](https://data.eumetsat.int/product/EO:EUM:DAT:METOP:AVHRRL1) |
+| IASI Level 1C — All Spectral Samples — Metop — Global | Metop | IASI | [EO:EUM:DAT:METOP:IASIL1C-ALL](https://data.eumetsat.int/product/EO:EUM:DAT:METOP:IASIL1C-ALL) |
+| AMSU-A Level 1B — Metop — Global | Metop | AMSU-A | [EO:EUM:DAT:METOP:AMSUL1](https://data.eumetsat.int/product/EO:EUM:DAT:METOP:AMSUL1) |
+| MHS Level 1B — Metop — Global | Metop | MHS | [EO:EUM:DAT:METOP:MHSL1](https://data.eumetsat.int/product/EO:EUM:DAT:METOP:MHSL1) |
+| OLCI Level 1B Full Resolution — Sentinel-3 | Sentinel-3 | OLCI | [EO:EUM:DAT:0409](https://data.eumetsat.int/product/EO:EUM:DAT:0409) |
+| SLSTR Level 1B Radiances and Brightness Temperatures — Sentinel-3 | Sentinel-3 | SLSTR | [EO:EUM:DAT:0411](https://data.eumetsat.int/data/map/EO:EUM:DAT:0411) |

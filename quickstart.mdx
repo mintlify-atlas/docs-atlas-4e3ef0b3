@@ -1,81 +1,218 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
-icon: 'rocket'
+title: "Quick start: decode your first satellite pass"
+description: "Go from a fresh SatDump install to decoded satellite imagery in minutes. Covers both the GUI workflow and the CLI command syntax with real examples."
+keywords: ["satdump quickstart", "decode satellite", "noaa hrpt", "satdump cli", "satdump gui", "live processing"]
 ---
 
-## Get started in three steps
-
-Get your documentation site running locally and make your first customization.
-
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+This guide takes you from a fresh SatDump installation to decoded satellite imagery as quickly as possible. Choose the **GUI** path if you are running the desktop app, or the **CLI** path if you prefer the terminal or are working on a headless system.
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  Before you start, make sure SatDump is installed. See the [installation guide](/installation) if you haven't set it up yet.
 </Note>
+
+<Tabs>
+  <Tab title="GUI">
+
+## Decode a recorded file
+
+<Steps>
+  <Step title="Open the processing window">
+
+Launch **`satdump-ui`**. On the welcome screen, click the **Start Processing** button, or use the menu bar: **File** > **Processing**.
+
+  </Step>
+
+  <Step title="Select a pipeline">
+
+In the processing window, open the **Pipeline** dropdown and choose the pipeline that matches your recording. For example, use `NOAA HRPT` for NOAA-15/18/19 HRPT recordings, `NOAA APT` for 137 MHz APT recordings, `MetOp AHRPT` for MetOp-A/B/C AHRPT recordings, or `Meteor-M2 LRPT` for 137 MHz LRPT recordings. See the [pipeline reference](/reference/pipelines-overview) for all available pipelines.
+
+  </Step>
+
+  <Step title="Select the input file and level">
+
+Click the file browser button next to the **Input** field and select your recording file (baseband, frames, soft symbols, etc.).
+
+Set the **Input level** to match what your file contains. Use `baseband` for raw IQ samples (`.cs16`, `.cf32`, etc.), `soft` for soft symbols or demodulated output, or `frames` for a framed bitstream.
+
+  </Step>
+
+  <Step title="Verify settings and start">
+
+Check that any required parameters shown below the pipeline selector are correct — for example, the sample rate for baseband files. Then click **Start**.
+
+SatDump closes the processing panel and adds a **Processing** item to the Root sidebar. You can watch the decoding progress there.
+
+  </Step>
+
+  <Step title="View the results">
+
+Once decoding finishes, a **Products** entry appears under the **Root**. Click the satellite name to expand it, then click an instrument (e.g., **AVHRR**) to open the image viewer.
+
+Use the **Presets** dropdown to apply standard composites (e.g., false color, MCIR), then click **Apply**. To save the current image, use **Current** > **Save Image** in the menu bar.
+
+  </Step>
+</Steps>
+
+## Live processing from an SDR device
+
+<Steps>
+  <Step title="Add a recorder">
+
+Click the **Add Recorder** button on the welcome screen, or use **Add** > **Recorder** from the menu bar. A **Recorder** item appears in the Root.
+
+  </Step>
+
+  <Step title="Select and start your SDR">
+
+In the **Device** panel, choose your SDR from the dropdown, set the frequency and gain, and click **Start**.
+
+  </Step>
+
+  <Step title="Choose a pipeline and start decoding">
+
+Switch to the **Processing** tab within the recorder. Select the satellite pipeline you want, set the output directory, and click **Start**.
+
+  </Step>
+</Steps>
+
+<Tip>
+  Use the **Debug** tab's constellation display to help tune your gain. A clean QPSK or BPSK constellation means your gain is well-set.
+</Tip>
+
+  </Tab>
+
+  <Tab title="CLI">
+
+## Offline processing
+
+The CLI `pipeline` subcommand processes a recorded file through any satellite pipeline.
+
+**Syntax:**
+
+```bash
+satdump pipeline [pipeline_id] [input_level] [input_file] [output_directory] [options]
+```
+
+Add `--help` to any command to see all available options for that pipeline.
+
+**Example — decode a MetOp AHRPT baseband:**
+
+```bash
+satdump pipeline metop_ahrpt baseband /home/user/metop_baseband.cs16 metop_output_directory \
+  --samplerate 6e6 --baseband_format cs16
+```
+
+**Example — decode a NOAA HRPT baseband:**
+
+```bash
+satdump pipeline noaa_hrpt baseband /home/user/noaa_hrpt.cs16 noaa_output_directory \
+  --samplerate 3e6 --baseband_format cs16
+```
+
+**Key options:**
+
+| Option | Description |
+|--------|-------------|
+| `--samplerate` | Sample rate of the baseband (e.g. `6e6` for 6 MHz) |
+| `--baseband_format` | IQ sample format: `cf32`, `cs32`, `cs16`, `cs8`, or `w8` |
+| `--dc_block` | Enable DC offset removal |
+| `--iq_swap` | Swap I and Q channels |
+
+<Note>
+  The `pipeline_id` value must match exactly the key in the pipeline definition file. You can find valid IDs in the [pipeline reference](/reference/pipelines-overview).
+</Note>
+
+## Live processing from an SDR
+
+The `legacy live` subcommand receives from an SDR device and processes the signal in real time.
+
+**Syntax:**
+
+```bash
+satdump legacy live [pipeline_id] [output_directory] [options]
+```
+
+**Example — receive MetOp AHRPT live with an Airspy:**
+
+```bash
+satdump legacy live metop_ahrpt metop_output_directory \
+  --source airspy \
+  --samplerate 6e6 \
+  --frequency 1701.3e6 \
+  --general_gain 18 \
+  --bias \
+  --timeout 780
+```
+
+**Common live options:**
+
+| Option | Description |
+|--------|-------------|
+| `--source` | SDR source ID (e.g. `airspy`, `rtlsdr`, `hackrf`) |
+| `--samplerate` | Baseband sample rate |
+| `--frequency` | Tuning frequency in Hz (e.g. `1701.3e6`) |
+| `--general_gain` | Gain value appropriate to the device |
+| `--bias` | Enable bias-T (for LNA power) |
+| `--timeout` | Stop automatically after this many seconds |
+| `--baseband_format` | IQ format for any simultaneous recording |
+| `--dc_block` | Enable DC offset removal |
+| `--iq_swap` | Swap I and Q channels |
+
+## Baseband recording
+
+Use `legacy record` to record a raw baseband to disk without processing:
+
+**Syntax:**
+
+```bash
+satdump legacy record [output_basename] [options]
+```
+
+**Example:**
+
+```bash
+satdump legacy record baseband_name \
+  --source airspy \
+  --samplerate 6e6 \
+  --frequency 1701.3e6 \
+  --general_gain 18 \
+  --bias \
+  --timeout 780 \
+  --baseband_format cf32
+```
+
+The output filename will have the appropriate extension added automatically (e.g. `baseband_name.cf32`).
+
+## Discover connected SDR devices
+
+Before running a live command, use `sdr_probe` to list the SDR devices detected on your system and get their source IDs:
+
+```bash
+satdump sdr_probe
+```
+
+This prints available devices and the `--source` values you need to pass to live commands.
+
+<Tip>
+  Full SDR device options (gain stages, bias-T flags, bandwidth settings) are documented in the [SDR options reference](/reference/sdr-options).
+</Tip>
+
+  </Tab>
+</Tabs>
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Live processing guide" icon="radio" href="/guides/live-processing">
+    Track satellites, schedule passes, and decode signals in real time with the recorder.
+  </Card>
+  <Card title="Offline processing guide" icon="file-waveform" href="/guides/offline-processing">
+    Process basebands, frames, and soft symbols through any pipeline.
+  </Card>
+  <Card title="Pipeline reference" icon="list" href="/reference/pipelines-overview">
+    Browse every supported satellite pipeline with frequencies and parameters.
+  </Card>
+  <Card title="SDR options reference" icon="microchip" href="/reference/sdr-options">
+    Find gain settings and source-specific options for all supported SDR hardware.
+  </Card>
+</CardGroup>

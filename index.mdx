@@ -1,133 +1,62 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
-icon: 'star'
+title: "SatDump: Open-Source Satellite Data Processing"
+description: "SatDump decodes and processes satellite data from SDR hardware. Receive weather imagery, telemetry, and more from dozens of satellites."
 ---
 
-## Setting up
+SatDump is a free, open-source satellite data processing application. Whether you want to receive live weather imagery from NOAA and Meteor satellites, decode telemetry from scientific missions, or process large X-band basebands, SatDump handles the entire pipeline — from raw IQ samples to calibrated image products.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Introduction" icon="satellite" href="/introduction">
+    Learn what SatDump is, what satellites it supports, and how it works.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Installation" icon="download" href="/installation">
+    Download or build SatDump for Windows, macOS, Linux, Android, or Docker.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Decode your first satellite pass in minutes using the GUI or CLI.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Satellite Pipelines" icon="list" href="/reference/pipelines-overview">
+    Browse all supported satellite pipelines and their parameters.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## What you can do with SatDump
 
-Everything you need to create world-class documentation.
+<CardGroup cols={2}>
+  <Card title="Live SDR Processing" icon="radio" href="/guides/live-processing">
+    Receive and decode satellite signals in real time directly from your SDR hardware.
+  </Card>
+  <Card title="Offline Baseband Decoding" icon="file-waveform" href="/guides/offline-processing">
+    Process previously recorded basebands, frames, or soft symbols through any pipeline.
+  </Card>
+  <Card title="Image Products and Composites" icon="image" href="/guides/products-viewer">
+    View, calibrate, and export satellite imagery with RGB composites and LUT coloring.
+  </Card>
+  <Card title="Map Projections" icon="earth-europe" href="/guides/projections">
+    Reproject satellite imagery onto equirectangular, UTM, or geostationary maps.
+  </Card>
+  <Card title="SDR Device Reference" icon="microchip" href="/reference/sdr-options">
+    Find gain settings and options for all supported SDR hardware devices.
+  </Card>
+  <Card title="Advanced Scripting" icon="code" href="/advanced/scripting">
+    Automate processing workflows with the built-in AngelScript engine.
+  </Card>
+</CardGroup>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+## Getting started in 3 steps
 
-## Make your content agent ready
+<Steps>
+  <Step title="Install SatDump">
+    Download the latest release for your platform from the [GitHub Releases page](https://github.com/SatDump/SatDump/releases), or follow the [build instructions](/installation) for your OS.
+  </Step>
+  <Step title="Connect your SDR or load a baseband">
+    Plug in your RTL-SDR, Airspy, HackRF, or other supported device for live processing — or load an existing baseband file for offline decoding.
+  </Step>
+  <Step title="Select a pipeline and start decoding">
+    Choose the satellite pipeline matching your target (e.g., `noaa_apt`, `meteor_m2_lrpt`, `goes_hrit`) and press **Start**. SatDump processes the signal and saves the image products automatically.
+  </Step>
+</Steps>
 
-Make your docs work for humans and AI agents alike.
-
-<Columns cols={2}>
-  <Card
-    title="Prompt component"
-    icon="robot"
-    href="/agent-ready/prompt"
-  >
-    Embed shareable AI prompts readers can copy or open in Cursor.
-  </Card>
-  <Card
-    title="Visibility"
-    icon="eye"
-    href="/agent-ready/visibility"
-  >
-    Show different content to humans and agents reading your docs.
-  </Card>
-  <Card
-    title="Contextual menu"
-    icon="bolt"
-    href="/agent-ready/contextual"
-  >
-    Give readers one-click access to Claude, ChatGPT, Cursor, and more.
-  </Card>
-  <Card
-    title="AI coding tools"
-    icon="wand-magic-sparkles"
-    href="/ai-tools/claude-code"
-  >
-    Set up Claude Code, Cursor, or Windsurf with Mintlify's skill.
-  </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<Note>
+  SatDump supports 20+ SDR devices and 100+ satellite pipelines covering weather satellites, scientific missions, geostationary imagers, and more. See the [pipeline reference](/reference/pipelines-overview) for the full list.
+</Note>

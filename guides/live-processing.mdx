@@ -1,0 +1,136 @@
+---
+title: "Live SDR Processing with SatDump"
+description: "Receive and decode satellite signals in real time using a software-defined radio, via the SatDump GUI recorder or the legacy live CLI command."
+keywords: ["live processing", "SDR", "real-time decoding", "recorder", "satellite signals"]
+---
+
+Live processing lets you receive and decode satellite signals directly from a connected software-defined radio, without recording a baseband file first. SatDump routes the incoming IQ stream through a pipeline and writes decoded products to disk as the pass unfolds.
+
+<Tabs>
+  <Tab title="GUI">
+    <Steps>
+      <Step title="Open the Recorder">
+        Select **Add > Recorder** from the menu bar, or click the **Add Recorder** button on the welcome screen. A new **Recorder** item appears in the **Root**.
+
+        <Note>
+          You can open multiple Recorder items simultaneously, but a single SDR device cannot be shared between them.
+        </Note>
+      </Step>
+
+      <Step title="Configure your SDR device">
+        In the **Device** panel, select your SDR from the dropdown, then set the center frequency, gain, and any device-specific options (such as bias-tee). Click **Start** to begin streaming.
+      </Step>
+
+      <Step title="Choose a pipeline and output directory">
+        In the **Processing** panel, select the satellite pipeline that matches your target (for example, `metop_ahrpt` for MetOp AHRPT). Set the output directory where decoded products will be saved.
+
+        <Tip>
+          Enable **Live Processing Output Autogeneration** in **File > Settings** so SatDump creates a uniquely named folder for each pass automatically.
+        </Tip>
+      </Step>
+
+      <Step title="Start live decoding">
+        Click **Start** in the **Processing** panel. A new **Processing** item is added to the **Root** and decoding begins immediately.
+      </Step>
+    </Steps>
+
+    ## Recorder panels
+
+    ### FFT
+
+    The **FFT** panel displays a real-time spectrum and waterfall. Use it to verify the signal is centered and to adjust the waterfall palette.
+
+    ### Recording
+
+    The **Recording** panel lets you save a baseband file at the same time as live decoding. You can start and stop recording independently of the pipeline. Set the output directory for recordings in **File > Settings** under **Baseband Recorder directory**.
+
+    ### Tracking
+
+    The **Tracking** panel provides TLE-based satellite tracking, pass scheduling, rotator control, and a satellite finder. Configure your station coordinates in **File > Settings** before using tracking.
+
+    ### VFOs
+
+    When **Multi-mode** is enabled in the **Schedule and Config** window inside the **Tracking** panel, active VFOs appear in the **VFOs** panel. This lets you decode multiple modes or satellites simultaneously on the same SDR stream.
+
+    ### Debug
+
+    The **Debug** panel shows a constellation "magic-eye" diagram. Use it to tune your gain — a well-defined pattern indicates the signal is being received correctly, which is especially useful on X-band links.
+  </Tab>
+
+  <Tab title="CLI">
+    Use `satdump legacy live` to start a live decoding session from the command line.
+
+    ```bash
+    satdump legacy live [pipeline_id] [output_file_or_directory] [additional options]
+    ```
+
+    **Example — decoding MetOp AHRPT with an Airspy:**
+
+    ```bash
+    satdump legacy live metop_ahrpt metop_output_directory \
+      --source airspy \
+      --samplerate 6e6 \
+      --frequency 1701.3e6 \
+      --general_gain 18 \
+      --bias \
+      --timeout 780
+    ```
+
+    ### Listing available SDR devices
+
+    Run `satdump sdr_probe` to print all detected SDR devices and their IDs:
+
+    ```bash
+    satdump sdr_probe
+    ```
+
+    Use the reported ID as the value for `--source`.
+
+    ### Common options
+
+    <ParamField path="--source" type="string" required>
+      SDR source ID (e.g., `airspy`, `rtlsdr`, `hackrf`). Run `satdump sdr_probe` to list available IDs.
+    </ParamField>
+
+    <ParamField path="--samplerate" type="number" required>
+      Baseband sample rate in samples per second (e.g., `6e6` for 6 Msps).
+    </ParamField>
+
+    <ParamField path="--frequency" type="number" required>
+      Center frequency in Hz (e.g., `1701.3e6` for 1701.3 MHz).
+    </ParamField>
+
+    <ParamField path="--general_gain" type="number">
+      Overall gain in dB. Accepted by most sources. Use source-specific gain flags if needed.
+    </ParamField>
+
+    <ParamField path="--bias" type="boolean">
+      Enable bias-tee power output on supported hardware.
+    </ParamField>
+
+    <ParamField path="--timeout" type="number">
+      Stop recording after this many seconds.
+    </ParamField>
+
+    <Note>
+      Any parameter supported by a pipeline module or SDR source can be appended as an additional option. Run `satdump legacy live [pipeline_id] --help` to see the full list for a specific pipeline.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Offline processing" icon="file-waveform" href="/guides/offline-processing">
+    Decode a previously recorded baseband or frames file.
+  </Card>
+  <Card title="Recording" icon="circle-dot" href="/guides/recording">
+    Save a baseband file for later processing.
+  </Card>
+  <Card title="Products viewer" icon="image" href="/guides/products-viewer">
+    View and export the image products generated during decoding.
+  </Card>
+  <Card title="SDR options reference" icon="microchip" href="/reference/sdr-options">
+    Find gain settings and flags for every supported SDR device.
+  </Card>
+</CardGroup>

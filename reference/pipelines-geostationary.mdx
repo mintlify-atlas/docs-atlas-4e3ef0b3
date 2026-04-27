@@ -1,0 +1,262 @@
+---
+title: 'Geostationary Satellite Pipelines — SatDump'
+description: 'Complete parameter reference for SatDump pipelines covering GOES, Fengyun-2/4, Himawari, GK-2A, Elektro, Arktika, MSG, and GeoNetCast.'
+keywords: ['satdump', 'pipeline', 'GOES', 'geostationary', 'Himawari', 'GK-2A', 'Elektro', 'MSG', 'HRIT', 'LRIT', 'GRB', 'Fengyun']
+---
+
+SatDump's geostationary pipelines let you decode full-disk imager data, emergency weather broadcasts, and administrative messages from the major operational geostationary meteorological satellites. Each pipeline accepts a different signal format — LRIT, HRIT, GRB, raw baseband, or TCP rebroadcast — so select the one that matches how you are receiving the signal.
+
+<AccordionGroup>
+
+  <Accordion title="GOES">
+
+    ### `goes_gvar` — GOES GVAR
+
+    Processes the legacy GOES Variable (GVAR) format broadcast used by older GOES-N series satellites. Produces stretched-VISSR imagery from the imager and sounder instruments.
+
+    No additional parameters.
+
+    ---
+
+    ### `goes_hrit` — GOES-R HRIT
+
+    Decodes the GOES-R series (GOES-16/17/18) High-Rate Information Transmission broadcast. Produces Full Disk, Mesoscale, and CONUS ABI imagery, EMWIN bulletins, DCS messages, and administrative text.
+
+    **Parameters:**
+
+    - `write_images` — Save FD, Meso, CONUS, and other ABI image segments. Default: `true`.
+    - `write_emwin` — Save EMWIN (Emergency Managers Weather Information Network) data files. Default: `true`.
+    - `write_messages` — Save administrative message text files. Default: `true`.
+    - `write_unknown` — Save unknown/unrecognized LRIT data files. Default: `true`.
+    - `parse_dcs` — Parse DCS (Data Collection System) files and save them as JSON. Default: `false`.
+    - `tracked_addresses` — When `parse_dcs` is enabled, only save information from the provided comma-separated DCS platform addresses. Default: save all DCS messages.
+    - `write_dcs` — Save raw DCS LRIT files to disk. Default: `false`.
+    - `write_lrit` — Write all received LRIT files to disk, regardless of type. Default: `false`.
+    - `fill_missing` — Correct black lines caused by interference or signal drop-outs by interpolating from adjacent lines. Default: `false`.
+    - `max_fill_lines` — When `fill_missing` is enabled, sets the maximum number of consecutive lines that will be filled in. Default: `50`.
+
+    ---
+
+    ### `goes_hrit_tcp` — GOES-R HRIT to goestools
+
+    Receives GOES-R HRIT and forwards it to a goestools-compatible TCP listener. Useful for feeding an existing goestools installation via SatDump.
+
+    No additional parameters.
+
+    ---
+
+    ### `goes_grb` — GOES-R GRB
+
+    Processes the GOES-R Geo-stationary Operational Environmental Satellites Rebroadcast (GRB) high-rate downlink, providing the full ABI instrument suite at native resolution.
+
+    No additional parameters.
+
+    ---
+
+    ### `goesr_cda` — GOES-R CDA
+
+    Processes the GOES-R Command and Data Acquisition link.
+
+    No additional parameters.
+
+    ---
+
+    ### `goes_md1` — GOES-N MDL
+
+    Processes the GOES-N series MDL (Meteorological Data Link) format.
+
+    No additional parameters.
+
+    ---
+
+    ### `goes_lrit` — GOES-N LRIT
+
+    Processes the legacy GOES-N series Low-Rate Information Transmission broadcast.
+
+    No additional parameters.
+
+    ---
+
+    ### `goesn_cda` — GOES-N CDA
+
+    Processes the GOES-N series Command and Data Acquisition link.
+
+    No additional parameters.
+
+    ---
+
+    ### `goesn_sounder` — GOES-N Sounder SD
+
+    Processes the GOES-N series sounder SD (Sounder Data) format.
+
+    No additional parameters.
+
+    ---
+
+    ### `goesn_sd` — GOES-N Sounder Data
+
+    Processes GOES-N sounder data.
+
+    No additional parameters.
+
+    ---
+
+    ### `goesr_raw` — GOES-R Raw Data
+
+    Processes raw GOES-R data frames.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Fengyun-2">
+
+    ### `fengyun_svissr` — Fengyun-2 S-VISSR
+
+    Decodes the Fengyun-2 Stretched-VISSR (S-VISSR) broadcast. Produces multi-channel imager data from China's first-generation geostationary meteorological satellites.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Fengyun-4">
+
+    ### `fengyun4_lrit` — Fengyun-4 LRIT
+
+    Processes the Fengyun-4 Low-Rate Information Transmission broadcast. Produces imager and product data from FY-4A/B.
+
+    **Parameters:**
+
+    - `ts_input` — Accept an MPEG transport stream (TS) as input instead of a DVB-S2 BBFrame. Use this when you feed SatDump data from a DVB-S2 receiver that already outputs TS.
+
+    ---
+
+    ### `fengyun4_hrit23` — Fengyun-4 HRIT-II/III
+
+    Processes the Fengyun-4 HRIT (High-Rate Information Transmission) format used in generation-II and generation-III broadcasts.
+
+    **Parameters:**
+
+    - `ts_input` — Accept an MPEG transport stream (TS) as input instead of a DVB-S2 BBFrame.
+
+  </Accordion>
+
+  <Accordion title="Himawari">
+
+    ### `himawaricast` — HimawariCast
+
+    Processes the HimawariCast DVB-S2 rebroadcast of JMA's Himawari-8/9 AHI imagery and products. Covers the Asia-Pacific region.
+
+    **Parameters:**
+
+    - `ts_input` — Accept an MPEG transport stream (TS) as input instead of a DVB-S2 BBFrame.
+
+  </Accordion>
+
+  <Accordion title="GEO-KOMPSAT-2A (GK-2A)">
+
+    ### `gk2a_lrit` — GK-2A LRIT
+
+    Processes the GEO-KOMPSAT-2A Low-Rate Information Transmission broadcast. Produces AMI imagery and meteorological products from South Korea's operational geostationary satellite.
+
+    No additional parameters.
+
+    ---
+
+    ### `gk2a_lrit_tcp` — GK-2A LRIT to xrit-rx
+
+    Receives GK-2A LRIT and forwards it to an xrit-rx TCP listener.
+
+    No additional parameters.
+
+    ---
+
+    ### `gk2a_hrit` — GK-2A HRIT
+
+    Processes the GK-2A High-Rate Information Transmission broadcast at full resolution.
+
+    No additional parameters.
+
+    ---
+
+    ### `gk2a_cdas` — GK-2A CDAS
+
+    Processes the GK-2A Command and Data Acquisition System link.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Elektro-L / Arktika-M">
+
+    ### `elektro_rdas` — ELEKTRO-L RDAS
+
+    Processes the ELEKTRO-L Raw Data Acquisition System downlink. Produces MSU-GS multi-channel imager data from Russia's operational geostationary satellite.
+
+    No additional parameters.
+
+    ---
+
+    ### `arktika_rdas` — ARKTIKA-M RDAS
+
+    Processes the ARKTIKA-M Raw Data Acquisition System downlink. ARKTIKA-M operates in a highly elliptical Molniya orbit, providing coverage of the Arctic region.
+
+    No additional parameters.
+
+    ---
+
+    ### `elektro_lrit` — ELEKTRO-L LRIT
+
+    Processes the ELEKTRO-L Low-Rate Information Transmission broadcast.
+
+    No additional parameters.
+
+    ---
+
+    ### `elektro_hrit` — ELEKTRO-L HRIT
+
+    Processes the ELEKTRO-L High-Rate Information Transmission broadcast at full resolution.
+
+    No additional parameters.
+
+    ---
+
+    ### `elektro_ggak` — ELEKTRO-L GGAK
+
+    Processes the ELEKTRO-L GGAK (Heliogeophysical Monitoring Complex) data stream, which carries space weather and particle flux measurements.
+
+    No additional parameters.
+
+    ---
+
+    ### `arktika_ggak` — ARKTIKA-M GGAK
+
+    Processes the ARKTIKA-M GGAK space weather data stream.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="MSG (Meteosat Second Generation)">
+
+    ### `msg_raw` — MSG Raw Data
+
+    Processes the Meteosat Second Generation raw data downlink. Produces SEVIRI imager data from EUMETSAT's European geostationary satellite series.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="GeoNetCast">
+
+    ### `geonetcast` — GeoNetCast
+
+    Processes the WMO GeoNetCast DVB-S2 rebroadcast service, which distributes environmental satellite products from multiple agencies over several geostationary satellites globally.
+
+    **Parameters:**
+
+    - `ts_input` — Accept an MPEG transport stream (TS) as input instead of a DVB-S2 BBFrame.
+
+  </Accordion>
+
+</AccordionGroup>

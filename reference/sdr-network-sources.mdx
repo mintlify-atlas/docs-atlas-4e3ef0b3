@@ -1,0 +1,132 @@
+---
+title: 'Network and Remote SDR Sources Reference'
+description: 'Configuration options for network-based and remote SDR sources in SatDump, including RTL-TCP, SpyServer, SDR++ Server, and the file source.'
+---
+
+SatDump can receive IQ data over the network from a remote SDR device, allowing you to run decoding pipelines on one machine while the radio hardware sits on another. This page documents every option for each supported network source.
+
+## CLI usage pattern
+
+Use the same `satdump legacy live` command as with hardware devices, passing a network source ID via `--source`:
+
+```bash
+satdump legacy live [pipeline] [output] --source [source_id] --ip_address [host] --port [port] --samplerate [rate] --frequency [freq] [--option value]
+```
+
+For example, to receive NOAA APT via a remote RTL-SDR exposed over RTL-TCP:
+
+```bash
+satdump legacy live noaa_apt /tmp/output --source rtltcp --ip_address 192.168.1.100 --port 1234 --frequency 137.9e6 --samplerate 2.4e6
+```
+
+## Network sources
+
+<AccordionGroup>
+
+  <Accordion title="RTL-TCP">
+    RTL-TCP is a lightweight TCP server bundled with the `rtl-sdr` package that streams IQ data from an RTL-SDR dongle over the network. Use `rtltcp` as the source ID.
+
+    <ParamField path="ip_address" type="string" required>
+      IPv4 address of the RTL-TCP server.
+    </ParamField>
+
+    <ParamField path="port" type="number" default="1234">
+      TCP port the server is listening on. The default RTL-TCP port is `1234`.
+    </ParamField>
+
+    <ParamField path="gain" type="number">
+      Device gain in dBs, sent to the remote RTL-SDR.
+    </ParamField>
+
+    <ParamField path="lna_agc" type="boolean">
+      Enable or disable the built-in LNA AGC on the remote device.
+    </ParamField>
+
+    <ParamField path="bias" type="boolean">
+      Enable Bias-Tee power on the remote device, if supported by the hardware.
+    </ParamField>
+
+    <ParamField path="ppm_correction" type="number">
+      Frequency correction for the remote dongle in parts per million (PPM).
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="SpyServer">
+    SpyServer is Airspy's dedicated streaming server, supporting Airspy R2, Airspy Mini, and RTL-SDR devices. Use `spyserver` as the source ID.
+
+    <ParamField path="ip_address" type="string" required>
+      IPv4 address of the SpyServer instance.
+    </ParamField>
+
+    <ParamField path="port" type="number" default="5555">
+      TCP port the SpyServer is listening on. The default is `5555`.
+    </ParamField>
+
+    <ParamField path="bit_depth" type="number" default="16">
+      Sample bit depth to stream at. Options are `8`, `16`, or `32`.
+    </ParamField>
+
+    <ParamField path="gain" type="number">
+      Device gain in dBs on the remote radio.
+    </ParamField>
+
+    <ParamField path="digital_gain" type="number">
+      Software (digital) gain applied by the SpyServer, in dBs.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="SDR++ Server">
+    <Warning>
+      Using SDR++ Server as a source in CLI mode is possible, but all device settings — including the sample rate — must be configured from the SDR++ UI connected to the server beforehand. SatDump cannot change those settings remotely.
+    </Warning>
+
+    SDR++ Server is a general-purpose streaming server built into SDR++. Use `sdrpp_server` as the source ID.
+
+    <ParamField path="ip_address" type="string" required>
+      IPv4 address of the SDR++ Server instance.
+    </ParamField>
+
+    <ParamField path="port" type="number" default="5259">
+      TCP port SDR++ Server is listening on. The default is `5259`.
+    </ParamField>
+
+    <ParamField path="bit_depth" type="number" default="16">
+      Sample bit depth to stream at. Options are `8`, `16`, or `32`.
+    </ParamField>
+
+    <ParamField path="compression" type="boolean" default="false">
+      Use SDR++ Server's built-in stream compression to reduce bandwidth.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="SatDump remote SDR">
+    SatDump includes a `remote_sdr_support` plugin that lets you expose any locally-connected device as a remote source for another SatDump instance. This is SatDump's own protocol, separate from RTL-TCP or SpyServer.
+
+    To use it, start the remote SDR server on the machine with the hardware, then point a second SatDump instance at it using the `remote` source ID. Refer to the plugin directory at `plugins/sdr_sources/remote_sdr_support/` for build and runtime details.
+  </Accordion>
+
+  <Accordion title="SoapySDR">
+    The `soapy_sdr_support` plugin provides a generic SoapySDR source (`soapy`), which lets you use any device with a SoapySDR driver that is not natively supported by SatDump. Consult the SoapySDR documentation for driver-specific options.
+  </Accordion>
+
+  <Accordion title="File source (for testing)">
+    <Note>
+      The file source is not recommended for live or autotrack sessions. Use offline decoding instead. It is, however, handy for replaying a recorded baseband to test pipeline configurations without live hardware.
+    </Note>
+
+    Use `file` as the source ID to replay a baseband recording in live mode.
+
+    <ParamField path="file_path" type="string" required>
+      Path to the baseband file. On Linux and macOS, `/dev/stdin` is accepted to pipe data from another process.
+    </ParamField>
+
+    <ParamField path="baseband_type" type="string" required>
+      Sample format of the baseband file. Accepted values: `u8`, `s8`, `s16`, `f32`, `ziq`.
+    </ParamField>
+
+    <ParamField path="iq_swap" type="boolean">
+      Swap the I and Q sample components in the stream.
+    </ParamField>
+  </Accordion>
+
+</AccordionGroup>

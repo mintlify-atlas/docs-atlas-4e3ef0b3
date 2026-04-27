@@ -1,23 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "SatDump",
+  "projectType": "general",
+  "projectName": "SatDump",
+  "projectDescription": "A generic, open-source satellite data processing software supporting live SDR reception, offline baseband decoding, and image product generation for dozens of satellites.",
   "theme": "aspen",
-  "colors": {
-    "primary": "#0485fc",
-    "light": "#fcfcfc"
-  },
-  "favicon": "https://media.brand.dev/78c0ed0d-d332-4508-8f52-c7f5e9090eba.png",
-  "navbar": {
-    "primary": {
-      "type": "github",
-      "href": "https://github.com/SatDump/SatDump"
-    }
-  },
-  "footer": {
-    "socials": {
-      "github": "https://github.com/SatDump/SatDump"
-    }
-  },
+  "primaryColor": "#0485fc",
+  "lightColor": "#fcfcfc",
+  "darkColor": null,
   "navigation": {
     "tabs": [
       {
@@ -92,5 +80,29 @@
         ]
       }
     ]
-  }
+  },
+  "keyFeatures": [
+    "Live SDR reception and decoding from 20+ hardware devices",
+    "Offline baseband processing with 100+ satellite pipelines",
+    "Multi-satellite image product viewer with RGB composites and calibration",
+    "Geographic map projections (equirectangular, UTM, stereographic, geostationary)",
+    "Satellite pass tracking, scheduling, and rotator control",
+    "ZIQ compressed baseband format with ZSTD for large recordings",
+    "AngelScript-based automation and scripting support",
+    "OpenCL GPU acceleration for compute-intensive operations",
+    "Cross-platform: Linux, Windows, macOS, Android",
+    "Plugin architecture supporting 50+ mission-specific decoders"
+  ],
+  "publicApiSurface": [
+    "satdump pipeline [pipeline_id] [input_level] [input_file] [output_dir]",
+    "satdump legacy live [pipeline_id] [output_dir] --source --samplerate --frequency",
+    "satdump legacy record [output_baseband] --source --samplerate --frequency",
+    "satdump sdr_probe",
+    "satdump-ui (graphical interface)",
+    "Pipeline::run(input_file, output_directory, parameters, input_level)",
+    "pipeline::loadPipelines(filepath)",
+    "pipeline::getPipelineFromID(pipeline_id)",
+    "satdump::initSatDump() / satdump::exitSatDump()",
+    "ZIQ baseband format (src-core/common/ziq.h)"
+  ]
 }

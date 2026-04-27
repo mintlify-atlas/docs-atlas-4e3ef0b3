@@ -1,0 +1,428 @@
+---
+title: 'LEO Weather Satellite Pipelines — SatDump'
+description: 'Parameter reference for SatDump LEO weather pipelines: NOAA, Meteor, MetOp, JPSS, EOS, Fengyun-3, DMSP, Landsat, and other polar-orbiting satellites.'
+keywords: ['satdump', 'pipeline', 'NOAA', 'Meteor', 'MetOp', 'JPSS', 'EOS', 'Fengyun-3', 'DMSP', 'Landsat', 'weather satellite', 'HRPT', 'APT', 'LRPT']
+---
+
+SatDump supports a wide range of low-Earth-orbit (LEO) polar-orbiting weather satellite missions, from the classic NOAA APT audio broadcasts to the high-resolution X-band dumps of modern operational satellites. Each accordion section below lists all pipeline IDs for that mission, along with every configurable parameter.
+
+<AccordionGroup>
+
+  <Accordion title="NOAA">
+
+    ### `noaa_hrpt` — NOAA HRPT
+
+    Produces AVHRR imagery and ancillary channel data from the High Resolution Picture Transmission downlink.
+
+    No additional parameters.
+
+    ---
+
+    ### `noaa_gac` — NOAA GAC
+
+    Processes the Global Area Coverage reduced-resolution AVHRR data stream.
+
+    **Parameters:**
+
+    - `backward` — Over the US, NOAA satellites often transmit in reverse order. Set to `true` to decode those backward replays correctly.
+
+    ---
+
+    ### `noaa_dsb` — NOAA DSB
+
+    Processes the Direct Sounder Broadcast (DSB) data stream.
+
+    No additional parameters.
+
+    ---
+
+    ### `noaa_apt` — NOAA APT
+
+    Decodes the Automatic Picture Transmission analogue image broadcast. Produces false-colour and channel-A/B imagery.
+
+    **Parameters:**
+
+    - `satellite_number` — Satellite number. Required for projections and overlays. Options: `15`, `18`, `19`.
+    - `start_timestamp` — Unix timestamp (UTC seconds) of the recording start. Required for projections and overlays. If your `.wav` file is a supported format the timestamp will be read automatically.
+    - `align_timestamps` — Aligns the pass to the correct time using timing marks in the APT space data. The start time must still be within 15 seconds for this to work. Default: `true`.
+    - `sdrpp_noise_reduction` — Applies the APT noise reduction originally implemented in SDR++. Default: `true`.
+    - `save_unsynced` — Saves the image before synchronization. Useful for weak signals or narrowband receivers. Default: `true`.
+    - `autocrop_wedges` — Automatically crops the image to include only telemetry wedges considered valid. May discard a lot of data on poor passes. Default: `false`.
+    - `max_crop_stddev` — When `autocrop_wedges` is enabled, sets the amount of noise to allow at the top/bottom of the image. Lower values produce more aggressive cropping. Default: `3500`. Useful range: approximately `400`–`10000`.
+    - `save_wav` — Saves the intermediate WAV file. Default: `false`.
+
+  </Accordion>
+
+  <Accordion title="Meteor M">
+
+    ### `meteor_hrpt` — METEOR HRPT
+
+    Produces MSU-MR imagery from the Meteor-M HRPT downlink.
+
+    **Parameters:**
+
+    - `year_override` — Overrides the year used for timestamps. Required when you process a file in a different year than the data was created.
+
+    ---
+
+    ### `meteor_m2_lrpt` — METEOR M2 LRPT 72k
+
+    Decodes the Low-Resolution Picture Transmission broadcast from Meteor-M2 at 72 kbit/s. Produces MSU-MR RGB imagery.
+
+    **Parameters:**
+
+    - `satellite_number` — If specified, overrides automatic satellite detection and treats the data as the given satellite. Valid options: `"M2"`, `"M2-2"`, `"M2-3"`, `"M2-4"`.
+    - `fill_missing` — Fills in black lines caused by signal drop-outs or interference.
+    - `max_fill_lines` — Maximum number of contiguous lines to fill in. Default: `50`.
+
+    ---
+
+    ### `meteor_m2-x_lrpt` — METEOR M2-X LRPT 72k
+
+    Same as `meteor_m2_lrpt`, with an additional Reed-Solomon check parameter.
+
+    **Parameters:**
+
+    All parameters from `meteor_m2_lrpt`, plus:
+
+    - `rs_usecheck` — Discards data that fails the Reed-Solomon check. Recommended to leave enabled. Set to `false` only if the satellite is transmitting bad RS codes. Default: `true`.
+
+    ---
+
+    ### `meteor_m2-x_lrpt_80k` — METEOR M2-x LRPT 80k
+
+    Decodes the LRPT broadcast at 80 kbit/s.
+
+    **Parameters:**
+
+    Same parameters as `meteor_m2_lrpt` (`satellite_number`, `fill_missing`, `max_fill_lines`).
+
+    ---
+
+    ### `meteor_m_dump_narrow` — METEOR-M Narrow Dump
+
+    <Warning>This pipeline is a work in progress (WIP) and may not produce complete results.</Warning>
+
+    No additional parameters.
+
+    ---
+
+    ### `meteor_m_dump_wide` — METEOR-M Wide Dump
+
+    <Warning>This pipeline is a work in progress (WIP) and may not produce complete results.</Warning>
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="MetOp">
+
+    ### `metop_ahrpt` — MetOp AHRPT
+
+    Processes the MetOp Advanced HRPT downlink. Produces AVHRR/3, AMSU, MHS, and ancillary data products.
+
+    **Parameters:**
+
+    - `write_hpt` — Generate a `.hpt` file suitable for loading into HRPT Reader for further processing.
+
+    ---
+
+    ### `metop_dump` — MetOp X-Band dump
+
+    Processes the MetOp X-band high-rate direct broadcast dump. Produces the full instrument suite.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="JPSS (Suomi NPP / JPSS-1/2/3/4)">
+
+    ### `npp_hrd` — Suomi NPP / JPSS-1 HRD
+
+    Processes the High-Rate Data downlink from Suomi NPP or NOAA-20 (JPSS-1). Produces VIIRS, CrIS, ATMS, and OMPS products.
+
+    No additional parameters.
+
+    ---
+
+    ### `jpss_hrd` — JPSS-2/3/4 HRD
+
+    Processes the High-Rate Data downlink from JPSS-2, JPSS-3, and JPSS-4.
+
+    No additional parameters.
+
+    ---
+
+    ### `jpss_tlm` — JPSS-2/3/4 Telemetry
+
+    Processes telemetry from JPSS-2, JPSS-3, and JPSS-4.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="EOS (Aqua / Terra / Aura)">
+
+    ### `aqua_db` — Aqua DB
+
+    Processes the Aqua direct broadcast downlink. Produces MODIS, AMSR-E, AIRS, and ancillary products.
+
+    No additional parameters.
+
+    ---
+
+    ### `terra_db` — Terra DB
+
+    Processes the Terra direct broadcast downlink. Produces MODIS and ancillary products.
+
+    No additional parameters.
+
+    ---
+
+    ### `aura_db` — Aura DB
+
+    Processes the Aura direct broadcast downlink. Produces MLS, OMI, HIRDLS, and TES products.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Fengyun-3">
+
+    ### `fengyun3_ab_hrpt` — FengYun-3 A/B AHRPT
+
+    Processes the Fengyun-3 A and B Advanced HRPT downlink. Produces MERSI and VIRR imagery.
+
+    **Parameters:**
+
+    - `write_c10` — Generate a `.C10` file for loading into HRPT Reader.
+
+    ---
+
+    ### `fengyun3_c_hrpt` — FengYun-3 C HRPT
+
+    Processes the Fengyun-3 C HRPT downlink.
+
+    **Parameters:**
+
+    - `write_c10` — Generate a `.C10` file for loading into HRPT Reader.
+
+    ---
+
+    ### `fengyun3_abc_mpt` — FengYun-3 A/B/C MPT
+
+    Processes the Fengyun-3 A/B/C MPT (Microwave/Pixel Transfer) downlink.
+
+    **Parameters:**
+
+    - `dump_mersi` — Dump raw MERSI frames for processing with other software (e.g., Fred's WeatherSat).
+    - `mersi_histmatch` — Enable line-based histogram equalization for MERSI to produce a smoother image. Note: this can cause thunderstorm clouds to appear too white.
+
+    ---
+
+    ### `fengyun3_d_ahrpt` — FengYun-3 D AHRPT
+
+    Processes the Fengyun-3 D Advanced HRPT downlink. Produces MERSI-II and ancillary data.
+
+    **Parameters:**
+
+    - `dump_mersi` — Dump raw MERSI frames for processing with other software (e.g., Fred's WeatherSat).
+    - `mersi_histmatch` — Enable line-based histogram equalization for MERSI to produce a smoother image. Note: this can cause thunderstorm clouds to appear too white.
+
+    ---
+
+    ### `fengyun3_e_ahrpt` — FengYun-3 E AHRPT
+
+    Processes the Fengyun-3 E Advanced HRPT downlink.
+
+    **Parameters:**
+
+    - `dump_mersi` — Dump raw MERSI frames for processing with other software (e.g., Fred's WeatherSat).
+    - `mersi_histmatch` — Enable line-based histogram equalization for MERSI to produce a smoother image. Note: this can cause thunderstorm clouds to appear too white.
+
+    ---
+
+    ### `fengyun3_g_ahrpt` — FengYun-3 G AHRPT
+
+    Processes the Fengyun-3 G Advanced HRPT downlink.
+
+    **Parameters:**
+
+    - `dump_mersi` — Dump raw MERSI frames for processing with other software (e.g., Fred's WeatherSat).
+    - `mersi_histmatch` — Enable line-based histogram equalization for MERSI to produce a smoother image. Note: this can cause thunderstorm clouds to appear too white.
+
+    ---
+
+    ### `fengyun3_f_ahrpt` — FengYun-3 F AHRPT
+
+    Processes the Fengyun-3 F Advanced HRPT downlink.
+
+    **Parameters:**
+
+    - `dump_mersi` — Dump raw MERSI frames for processing with other software (e.g., Fred's WeatherSat).
+    - `mersi_histmatch` — Enable line-based histogram equalization for MERSI to produce a smoother image. Note: this can cause thunderstorm clouds to appear too white.
+
+    ---
+
+    ### `fengyun3_abc_dpt` — FengYun-3 A/B/C DPT
+
+    Processes the Fengyun-3 A/B/C DPT downlink.
+
+    **Parameters:**
+
+    - `dump_mersi` — Dump raw MERSI frames for processing with other software (e.g., Fred's WeatherSat).
+    - `mersi_histmatch` — Enable line-based histogram equalization for MERSI to produce a smoother image. Note: this can cause thunderstorm clouds to appear too white.
+
+    ---
+
+    ### `fengyun3_d_dpt` — FengYun-3 D DPT
+
+    Processes the Fengyun-3 D DPT downlink.
+
+    **Parameters:**
+
+    - `dump_mersi` — Dump raw MERSI frames for processing with other software (e.g., Fred's WeatherSat).
+    - `mersi_histmatch` — Enable line-based histogram equalization for MERSI to produce a smoother image. Note: this can cause thunderstorm clouds to appear too white.
+
+    ---
+
+    ### `fengyun3_e_dpt` — FengYun-3 E DPT
+
+    Processes the Fengyun-3 E DPT downlink.
+
+    **Parameters:**
+
+    - `dump_mersi` — Dump raw MERSI frames for processing with other software (e.g., Fred's WeatherSat).
+    - `mersi_histmatch` — Enable line-based histogram equalization for MERSI to produce a smoother image. Note: this can cause thunderstorm clouds to appear too white.
+
+    ---
+
+    ### `fengyun3_tlm_old` — FengYun-3 TLM (Old) A/B/C/D
+
+    Processes old-format FengYun-3 telemetry for satellites A through D.
+
+    No additional parameters.
+
+    ---
+
+    ### `fengyun3_tlm` — FengYun-3 TLM E/F
+
+    Processes FengYun-3 telemetry for satellites E and F.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="DMSP">
+
+    ### `dmsp_rtd` — DMSP RTD
+
+    Processes the Defense Meteorological Satellite Program Real-Time Data downlink. Produces OLS, SSM/I, and ancillary products.
+
+    **Parameters:**
+
+    - `satellite_number` — DMSP satellites do not transmit a satellite ID, and instrument configurations vary between them. You must specify the satellite. Options: `17`, `18`.
+
+  </Accordion>
+
+  <Accordion title="Landsat (LDCM)">
+
+    ### `landsat_ldcm_tlm` — LandSat 8/9 S-band
+
+    Processes Landsat 8 and 9 S-band telemetry.
+
+    No additional parameters.
+
+    ---
+
+    ### `landsat_ldcm_link` — LandSat 8/9 X-band
+
+    Processes the Landsat 8 and 9 X-band direct downlink. Produces OLI and TIRS imagery.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="MetOp-SG / AWS">
+
+    ### `aws_pfm` — AWS PFM L-Band (DB and Dump)
+
+    Processes the Arctic Weather Satellite (AWS) Platform Flight Model L-band downlink, supporting both direct broadcast and dump modes.
+
+    **Parameters:**
+
+    - `use_ephemeris` — Use ephemeris data from the satellite for improved geolocation projection.
+
+  </Accordion>
+
+  <Accordion title="Oceansat">
+
+    ### `oceansat2_db` — OceanSat-2 DB
+
+    Processes the OceanSat-2 direct broadcast downlink. Produces OCM-2 and SCAT data.
+
+    No additional parameters.
+
+    ---
+
+    ### `oceansat3_argos` — Oceansat-3 L-Band
+
+    Processes the Oceansat-3 L-band Argos Data Collection System downlink.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="Proba">
+
+    ### `proba1_dump` — Proba-1 dump
+
+    Processes the Proba-1 X-band dump. Produces CHRIS and HRC imagery.
+
+    No additional parameters.
+
+    ---
+
+    ### `proba2_dump` — Proba-2 dump
+
+    Processes the Proba-2 X-band dump. Produces SWAP and LYRA data.
+
+    No additional parameters.
+
+    ---
+
+    ### `probav_s_dump` — Proba-V S-Band dump
+
+    Processes the Proba-V S-band dump.
+
+    No additional parameters.
+
+    ---
+
+    ### `probav_x_dump` — Proba-V X-Band dump
+
+    Processes the Proba-V X-band dump. Produces vegetation imagery from the VEGETATION instrument.
+
+    No additional parameters.
+
+  </Accordion>
+
+  <Accordion title="GCOM">
+
+    ### `gcom_w1_link` — GCOM-W1 link
+
+    Processes the GCOM-W1 (Shizuku) downlink. Produces AMSR2 data.
+
+    No additional parameters.
+
+    ---
+
+    ### `gcom_c1_link` — GCOM-C1 link
+
+    Processes the GCOM-C1 (Shikisai) downlink. Produces SGLI imagery.
+
+    No additional parameters.
+
+  </Accordion>
+
+</AccordionGroup>

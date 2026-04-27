@@ -1,0 +1,211 @@
+---
+title: 'Projection Configuration Parameters Reference'
+description: 'All projection types and parameters for SatDump AngelScript composites, including equirectangular, stereo, UTM, geostationary, TPERS, and Web Mercator.'
+---
+
+When you use SatDump's AngelScript composite system, you can project any decoded image into a standard geographic coordinate reference system and export it as a GeoTIFF. This page documents every projection type and its configuration parameters.
+
+## Basic example
+
+The simplest projection configuration uses the equirectangular projection with `auto: true`, which lets SatDump automatically compute the output bounds. The `img_format: ".tif"` option produces a GeoTIFF that is compatible with QGIS and other GIS software:
+
+```json
+"Composite Name": {
+   "equation": "ch2, ch2, ch1",
+   "project": {
+      "config": {
+         "type": "equirec",
+         "auto": true,
+         "scalar_x": 0.016,
+         "scalar_y": -0.016
+      },
+      "draw_map_overlay": true,
+      "individual_equalize": true,
+      "img_format": ".tif"
+   }
+}
+```
+
+Key fields in the `project` block:
+
+- `config` — the projection configuration object (documented below)
+- `auto: true` — automatically compute projection bounds from the data; individual parameters in `config` still override the automatic values when specified
+- `draw_map_overlay: true` — draw country and coastline borders on the output image
+- `img_format: ".tif"` — write output as a GeoTIFF
+
+## Common parameters
+
+These parameters apply to every projection type. You can omit them when using `auto: true`; if they are omitted and automatic mode is not used, they default to `0`.
+
+<ParamField path="type" type="string" required>
+  Projection type. One of: `equirec`, `stereo`, `utm`, `geos`, `tpers`, `webmerc`.
+</ParamField>
+
+<ParamField path="lat0" type="number">
+  Latitude of the origin of the projection, in degrees.
+</ParamField>
+
+<ParamField path="lon0" type="number">
+  Longitude of the origin of the projection, in degrees.
+</ParamField>
+
+<ParamField path="offset_x" type="number">
+  Horizontal offset of the projection from its center, in meters.
+</ParamField>
+
+<ParamField path="offset_y" type="number">
+  Vertical offset of the projection from its center, in meters.
+</ParamField>
+
+<ParamField path="scalar_x" type="number">
+  Horizontal scale of the projection in meters per pixel. Use a positive value. In the example above, `0.016` degrees per pixel is used for equirectangular output.
+</ParamField>
+
+<ParamField path="scalar_y" type="number">
+  Vertical scale of the projection in meters per pixel. Use a negative value for north-up images (e.g. `-0.016`).
+</ParamField>
+
+## Projection types
+
+<AccordionGroup>
+
+  <Accordion title="equirec — Equirectangular">
+    The equirectangular projection maps latitude and longitude linearly to x and y. It is the simplest and most common choice for polar-orbiting satellite imagery.
+
+    This projection uses only the [common parameters](#common-parameters) above. No extra parameters are required.
+
+    ```json
+    "config": {
+      "type": "equirec",
+      "auto": true,
+      "scalar_x": 0.016,
+      "scalar_y": -0.016
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="stereo — Stereographic">
+    The stereographic projection is a conformal azimuthal projection centred on a point you define. It is well suited for polar or regional imagery.
+
+    This projection uses the [common parameters](#common-parameters) above. Alternatively, you can use the **alternative mode** which takes explicit image dimensions instead.
+
+    #### Alternative mode (mandatory parameters)
+
+    <ParamField path="center_lat" type="number" required>
+      Latitude of the centre of the projection in degrees.
+    </ParamField>
+
+    <ParamField path="center_lon" type="number" required>
+      Longitude of the centre of the projection in degrees.
+    </ParamField>
+
+    <ParamField path="scale" type="number" required>
+      Scale of the output image in meters per pixel.
+    </ParamField>
+
+    <ParamField path="width" type="number" required>
+      Width of the output image in pixels.
+    </ParamField>
+
+    <ParamField path="height" type="number" required>
+      Height of the output image in pixels.
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="utm — Universal Transverse Mercator">
+    UTM divides the world into 60 north–south zones and is widely used for regional mapping.
+
+    #### Extra parameters
+
+    <ParamField path="zone" type="number">
+      UTM zone number (1–60).
+    </ParamField>
+
+    <ParamField path="south" type="boolean">
+      Set to `true` if the area of interest is south of the equator, `false` (or omit) for north.
+    </ParamField>
+
+    #### Alternative mode (mandatory parameters)
+
+    <ParamField path="scale" type="number" required>
+      Scale of the output image in meters per pixel.
+    </ParamField>
+
+    <ParamField path="width" type="number" required>
+      Width of the output image in pixels.
+    </ParamField>
+
+    <ParamField path="height" type="number" required>
+      Height of the output image in pixels.
+    </ParamField>
+
+    In alternative mode, `zone` and `south` are optional and can still be provided.
+  </Accordion>
+
+  <Accordion title="geos — Geostationary">
+    The geostationary projection is designed for satellites in geostationary orbit. The satellite is assumed to be directly above the equator at the longitude you specify via `lon0`.
+
+    #### Extra parameters
+
+    <ParamField path="altitude" type="number">
+      Altitude of the satellite above the Earth's surface, in meters. The nominal geostationary altitude is approximately `35786000` m.
+    </ParamField>
+
+    <ParamField path="sweep_x" type="boolean">
+      Sweep mode flag. Set to `true` if the instrument sweeps along the x-axis (as on GOES-R series). Leave `false` or omit for y-axis sweep (as on MSG/Meteosat).
+    </ParamField>
+  </Accordion>
+
+  <Accordion title="tpers — Tilted PERSpective">
+    The Tilted PERSpective (TPERS) projection simulates the view from an arbitrary point in space, optionally with a tilt and azimuth. It can reproduce the exact perspective of any satellite sensor, including geostationary satellites.
+
+    #### Extra parameters
+
+    <ParamField path="altitude" type="number">
+      Altitude of the satellite above the Earth's surface, in meters.
+    </ParamField>
+
+    <ParamField path="tilt" type="number">
+      Tilt angle of the satellite in degrees.
+    </ParamField>
+
+    <ParamField path="azimuth" type="number">
+      Azimuth angle of the satellite in degrees.
+    </ParamField>
+
+    #### Alternative mode (mandatory parameters)
+
+    <ParamField path="center_lat" type="number" required>
+      Latitude of the centre of the projection in degrees. Set to `0` to project a geostationary satellite.
+    </ParamField>
+
+    <ParamField path="center_lon" type="number" required>
+      Longitude of the centre of the projection in degrees. Set to the satellite's sub-satellite longitude (e.g. `76` for Elektro-L N°3) when projecting a geostationary satellite.
+    </ParamField>
+
+    <ParamField path="scale" type="number" required>
+      Scale of the output image in meters per pixel.
+    </ParamField>
+
+    <ParamField path="width" type="number" required>
+      Width of the output image in pixels.
+    </ParamField>
+
+    <ParamField path="height" type="number" required>
+      Height of the output image in pixels.
+    </ParamField>
+
+    <ParamField path="altitude" type="number" required>
+      Altitude of the satellite in meters. Use `36000e3` for the standard geostationary altitude.
+    </ParamField>
+
+    In alternative mode, `tilt` and `azimuth` are optional.
+  </Accordion>
+
+  <Accordion title="webmerc — Web Mercator">
+    The Web Mercator projection (EPSG:3857) is the standard projection used by web mapping services such as OpenStreetMap. It is useful when you want to overlay SatDump output on a slippy-map tile layer.
+
+    This projection uses only the [common parameters](#common-parameters) above. No extra parameters are required.
+  </Accordion>
+
+</AccordionGroup>

@@ -1,0 +1,199 @@
+---
+title: 'Image Expression System: Build Satellite Composites'
+description: 'Build grayscale, RGB, and RGBA composites from satellite instrument channels using SatDump''s expression syntax, calibrated channels, LUTs, and macros.'
+keywords: ['image expression', 'RGB composite', 'calibrated channel', 'look-up table', 'satellite imagery', 'SatDump']
+---
+
+The image expression system lets you combine raw instrument channels into grayscale, RGB, or RGBA composites using a small expression language that supports calibrated values, look-up tables, equirectangular overlays, and wavelength-based channel selection.
+
+## Expression basics
+
+An expression describes the pixel value for each output channel. The number of comma-separated terms determines the output mode:
+
+| Expression               | Output          |
+|--------------------------|-----------------|
+| `ch1`                    | Grayscale       |
+| `ch1, ch2`               | Grayscale + Alpha |
+| `ch1, ch2, ch3`          | RGB             |
+| `ch1, ch2, ch3, ch4`     | RGBA            |
+
+Channel variables are named `chCHNAME`, where `CHNAME` is the instrument channel name as shown in the explorer under **Channels**. For example, `Channel 3a` becomes `ch3a`. All channel variables are normalized to the range `0`–`1`, and the expected output range is the same.
+
+## Additional definitions
+
+When you need more than raw channel values, you can define additional variables before the pixel expression. Definitions are separated from each other and from the pixel expression using semicolons (`;`) instead of commas. For example:
+
+```text
+cch1=(1, reflective_radiance, 0.000000, 46.203000);
+cch2=(1, reflective_radiance, 0.000000, 46.203000);
+ch2, ch2, ch1
+```
+
+### Calibrated channels
+
+A calibrated channel definition retrieves a physically calibrated value and scales it to `0`–`1`:
+
+```text
+variable_name=(CHNAME, CALIBRATION_UNIT, MINCALVAL, MAXCALVAL);
+```
+
+| Parameter          | Description                                                  |
+|--------------------|--------------------------------------------------------------|
+| `variable_name`    | Name for the new variable, often prefixed `cch`             |
+| `CHNAME`           | Instrument channel name (same as used in `chCHNAME`)        |
+| `CALIBRATION_UNIT` | Calibration unit ID string (e.g. `reflective_radiance`)     |
+| `MINCALVAL`        | Physical value mapped to `0`                                 |
+| `MAXCALVAL`        | Physical value mapped to `1`                                 |
+
+<Tip>
+Set `CALIBRATION_UNIT` to `equalized` to return the raw channel with histogram equalization applied. This is useful for stretching uncalibrated instrument data.
+</Tip>
+
+### Look-up tables (1D/2D)
+
+A look-up table (LUT) maps input values to output colours using a PNG image as the palette.
+
+**Definition:**
+
+```text
+lut_name=lut(path/to/lut.png)
+```
+
+- `lut_name` — the name used to call the LUT in the pixel expression
+- `path/to/lut.png` — path to the LUT image (any supported format), relative to SatDump's resources folder
+
+**Usage in an expression:**
+
+```text
+lut_name(x_pos, y_pos, lut_channel)
+```
+
+| Parameter     | Description                                                    |
+|---------------|----------------------------------------------------------------|
+| `x_pos`       | X position in the LUT image, `0`–`1`                          |
+| `y_pos`       | Y position in the LUT image, `0`–`1`                          |
+| `lut_channel` | Channel index to read (0-based, up to image channels minus 1)  |
+
+**Example** — generate an RGB image from a single channel via LUT:
+
+```text
+lut=lut(path/to/lut.png);
+lut(ch1, 0, 0), lut(ch1, 0, 1), lut(ch1, 0, 2)
+```
+
+### Equirectangular projected images
+
+You can load any equirectangular image (such as a NASA Blue Marble texture) and sample it at the geographic coordinates of each pixel, blending it with instrument data. This requires the instrument product to have projection information.
+
+**Definition:**
+
+```text
+equ_name=equp(path/to/image.png)
+```
+
+- `equ_name` — the name used to sample the image in the pixel expression
+- `path/to/image.png` — equirectangular image path, relative to SatDump's resources folder
+
+**Usage in an expression:**
+
+```text
+equ_name(equ_channel)
+```
+
+- `equ_channel` — channel index to read (0-based)
+
+**Example** — MCIR (Map-Colour Infrared) composite blending thermal channel with Blue Marble:
+
+```text
+bm=equp(maps/nasa_hd.jpg); 
+ch4 * (ch4) + (1-ch4) * bm(0), 
+ch4 * (ch4) + (1-ch4) * bm(1), 
+ch4 * (ch4) + (1-ch4) * bm(2)
+```
+
+In this composite, warmer (brighter) pixels in `ch4` show the raw thermal channel, while cooler areas reveal the underlying Blue Marble background.
+
+### Macros
+
+For complex or repeated sub-expressions, you can define a named macro:
+
+```text
+macro_name = equation
+```
+
+The macro expands inline wherever you use `macro_name` in the pixel expression.
+
+<Warning>
+Macros cannot be nested. A macro definition cannot reference another macro.
+</Warning>
+
+## Channel alignment and scaling
+
+Many instruments have channels at different resolutions or with slight spatial offsets. SatDump automatically handles alignment and resampling.
+
+The **output size and alignment** are determined by the first channel referenced in the pixel expression:
+
+- `ch2, ch2, ch1` → output is sized to `ch2`
+- `ch1 * 0 + ch2, ch2, ch1` → despite `ch2` appearing second in the comma list, `ch1` appears first in the arithmetic and controls the output
+
+To force a specific channel as the spatial reference regardless of expression order, use:
+
+```text
+ref_channel=N
+```
+
+where `N` is the channel number. The referenced channel must still appear somewhere in the expression.
+
+## Wavelength, frequency, and polarization-based channel selection
+
+Many composites work across multiple instruments that have different channel numbering but similar spectral bands. Instead of hard-coding channel numbers, you can select channels by physical properties.
+
+### Basic wavelength/frequency selection
+
+Use curly braces to select the channel closest to a given wavelength or frequency:
+
+```text
+{10.4um}      → selects channel nearest to 10.4 µm
+{89GHz}       → selects channel nearest to 89 GHz
+{830nm}       → selects channel nearest to 830 nm
+```
+
+These are substituted into channel names at expression evaluation time. For example, `ch{10.4um}` might expand to `ch4`.
+
+This also works inside calibrated channel definitions:
+
+```text
+cch2=({830nm}, sun_angle_compensated_reflective_radiance, 0.000000, 97.050700);
+cch1=({630nm}, sun_angle_compensated_reflective_radiance, 0.000000, 90.000000);
+cch2, cch2, cch1
+```
+
+### Full selector format
+
+```text
+{Wavelength, Polarization, Bandwidth, WavelengthTolerance, BandwidthTolerance}
+```
+
+All fields after `Wavelength` are optional. The defaults are:
+- **Polarization**: any (`*`)
+- **Frequency tolerance**: 5%
+- **Bandwidth**: ignored unless specified
+
+**Polarization codes:**
+
+| Code | Meaning                                |
+|------|----------------------------------------|
+| `N`  | None / All (e.g. AVHRR, MSU-MR)        |
+| `H`  | Horizontal                             |
+| `V`  | Vertical                               |
+| `R`  | Right-hand circular                    |
+| `L`  | Left-hand circular                     |
+| `*`  | Any (ignore polarization as a filter)  |
+
+**Examples:**
+
+```text
+{10.4um,*,-1,10}    → any polarization, 10% tolerance, ignore bandwidth
+{89GHz,H}           → horizontal polarization, 5% default tolerance
+{0.615um,*,0.13um}  → selects AVHRR Channel 1 by centre wavelength + bandwidth
+```

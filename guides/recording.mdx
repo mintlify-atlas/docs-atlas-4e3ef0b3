@@ -1,0 +1,138 @@
+---
+title: "Recording Baseband Files with SatDump"
+description: "Save raw IQ baseband files from your SDR using the SatDump GUI or CLI, with support for multiple sample formats and simultaneous live decoding."
+keywords: ["recording", "baseband", "IQ", "SDR recording", "baseband format", "cf32", "cs16"]
+---
+
+Recording saves a raw IQ stream from your SDR to disk so you can process it later or share it with others. SatDump supports several baseband formats and lets you record at the same time as live decoding, so you never have to choose between the two.
+
+<Tabs>
+  <Tab title="GUI">
+    <Steps>
+      <Step title="Open a Recorder">
+        Select **Add > Recorder** from the menu bar, or click **Add Recorder** on the welcome screen. Configure your SDR device in the **Device** panel and start the stream.
+      </Step>
+
+      <Step title="Set the recording output directory">
+        Go to **File > Settings** and set the **Baseband Recorder directory** under the **Input/Output Directories** section. This is the folder where all baseband recordings will be saved.
+      </Step>
+
+      <Step title="Configure recording options">
+        Open the **Recording** panel inside the Recorder. Set the filename and choose a baseband format from the dropdown (see the formats table below).
+      </Step>
+
+      <Step title="Start recording">
+        Click **Start** in the **Recording** panel. The recording continues until you click **Stop** or the stream ends.
+
+        <Note>
+          You can start or stop the **Recording** panel independently of the **Processing** panel. Both can run simultaneously on the same SDR stream.
+        </Note>
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="CLI">
+    Use `satdump legacy record` to record a baseband from the command line. Provide the output filename **without** an extension — SatDump appends the correct extension based on the chosen format.
+
+    ```bash
+    satdump legacy record [output_baseband] [additional options]
+    ```
+
+    **Example — recording a 6 Msps Airspy stream in cf32 format:**
+
+    ```bash
+    satdump legacy record baseband_name \
+      --source airspy \
+      --samplerate 6e6 \
+      --frequency 1701.3e6 \
+      --general_gain 18 \
+      --bias \
+      --timeout 780 \
+      --baseband_format cf32
+    ```
+
+    ### Common options
+
+    <ParamField path="--source" type="string" required>
+      SDR source ID (e.g., `airspy`, `rtlsdr`, `hackrf`). Run `satdump sdr_probe` to list available devices.
+    </ParamField>
+
+    <ParamField path="--samplerate" type="number" required>
+      Sample rate in samples per second (e.g., `6e6`).
+    </ParamField>
+
+    <ParamField path="--frequency" type="number" required>
+      Center frequency in Hz (e.g., `1701.3e6`).
+    </ParamField>
+
+    <ParamField path="--baseband_format" type="string">
+      Output sample format. Defaults to `cs8` if not set. See the formats table below.
+    </ParamField>
+
+    <ParamField path="--general_gain" type="number">
+      Overall gain in dB.
+    </ParamField>
+
+    <ParamField path="--bias" type="boolean">
+      Enable bias-tee power output on supported hardware.
+    </ParamField>
+
+    <ParamField path="--timeout" type="number">
+      Stop recording after this many seconds.
+    </ParamField>
+
+    <ParamField path="--dc_block" type="boolean">
+      Remove a DC spike or offset from the IQ stream before saving.
+    </ParamField>
+
+    <ParamField path="--iq_swap" type="boolean">
+      Swap the I and Q branches before saving.
+    </ParamField>
+  </Tab>
+</Tabs>
+
+## Baseband formats
+
+Choose a format based on your storage, quality, and compatibility requirements.
+
+| Format | Sample type | Notes |
+|---|---|---|
+| `cf32` | Complex float 32-bit | Highest quality; large files. Compatible with GQRX. |
+| `cs32` | Complex signed 32-bit | High quality; large files. |
+| `cs16` | Complex signed 16-bit | Good quality; half the size of `cf32`. Default in SDR#. |
+| `cs8` | Complex signed 8-bit | Compact; may reduce SNR on weak signals. |
+| `cu8` | Complex unsigned 8-bit | Compatible with HDSDR and RTL-SDR software. |
+| `w8` | 8-bit wav-style | |
+| `w16` | 16-bit wav-style | |
+
+<Tip>
+  For long recordings on limited storage, `cs16` offers a good balance between file size and signal quality. Avoid `cf32` unless you need maximum fidelity.
+</Tip>
+
+SatDump also supports the **ZIQ** compressed format when built with ZStd support. ZIQ reduces file size significantly for sparse or low-activity basebands. See [ZIQ format](/advanced/ziq-format) for details.
+
+## Settings reference
+
+The following settings in **File > Settings** affect baseband recording:
+
+| Setting | Description |
+|---|---|
+| **Baseband Recorder directory** | Folder where all baseband files are saved |
+| **Recorder Baseband Filename Milliseconds** | Append milliseconds to the output filename for higher time precision |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Offline processing" icon="file-waveform" href="/guides/offline-processing">
+    Decode your recorded baseband through a pipeline.
+  </Card>
+  <Card title="Live processing" icon="radio" href="/guides/live-processing">
+    Decode in real time while recording simultaneously.
+  </Card>
+  <Card title="ZIQ format" icon="file-zipper" href="/advanced/ziq-format">
+    Use compressed baseband recording to save disk space.
+  </Card>
+  <Card title="SDR options reference" icon="microchip" href="/reference/sdr-options">
+    Find gain settings and flags for every supported SDR device.
+  </Card>
+</CardGroup>

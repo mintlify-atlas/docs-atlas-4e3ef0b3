@@ -1,0 +1,88 @@
+---
+title: 'ZIQ IQ Baseband Format: ZSTD Compression in SatDump'
+description: 'ZIQ is SatDump''s ZSTD-compressed IQ baseband format. Learn its file header, payload structure, bit depths, and C++ implementation details.'
+keywords: ['ZIQ', 'baseband format', 'IQ recording', 'ZSTD compression', 'SatDump', 'SDR']
+---
+
+ZIQ is a non-standard baseband format built into SatDump that compresses raw IQ samples with ZSTD to dramatically reduce the disk space required for large recordings — particularly relevant for X-band passes where a single recording can easily exceed 100 GB.
+
+## Why ZIQ exists
+
+Raw baseband recordings for wideband signals consume enormous amounts of storage. Testing across several compression algorithms showed that ZSTD achieves compression ratios of **40% or more at 8-bit sample depth** with minimal CPU overhead. Rather than storing samples in a plain headerless binary file, ZIQ adds a structured header (similar in concept to WAV) so that any reader can identify the file, determine the sample format and rate, and locate the payload immediately.
+
+The name comes from **Z** (for Z-Standard, the compression algorithm) and **IQ** (for the complex IQ baseband data it stores).
+
+## File structure
+
+A ZIQ file is made up of two consecutive regions: a fixed-plus-variable header, followed immediately by the payload.
+
+```
+┌─────────────────────────────────┐
+│         ZIQ Header              │
+│  (signature + fields + JSON)    │
+├─────────────────────────────────┤
+│         Payload                 │
+│  (raw or ZSTD-compressed IQ)    │
+└─────────────────────────────────┘
+```
+
+## Header format
+
+| Field               | Description                              | Size      | Type       |
+|---------------------|------------------------------------------|-----------|------------|
+| `ZIQ_`              | File signature — identifies a ZIQ file  | 4 bytes   | `char[4]`  |
+| `is_compressed`     | `true` = ZSTD-compressed, `false` = raw | 1 byte    | `bool`     |
+| `bits_per_sample`   | Sample bit depth (8, 16, or 32)         | 1 byte    | `uint8_t`  |
+| `samplerate`        | Complex sample rate in samples/second   | 8 bytes   | `uint64_t` |
+| `annotation_length` | Byte length of the JSON annotation      | 8 bytes   | `uint64_t` |
+| `annotation_str`    | Annotation JSON string (ASCII)          | Varies    | `char[]`   |
+
+### Field descriptions
+
+**File signature (`ZIQ_`)**
+Four ASCII bytes used to identify the file type, analogous to the `RIFF` tag in a WAV file.
+
+**Compression flag (`is_compressed`)**
+When `true`, the payload is a ZSTD-compressed stream. When `false`, raw uncompressed samples follow directly.
+
+**Bits per sample (`bits_per_sample`)**
+Determines the C type used to interpret each sample component (I or Q):
+
+| Value | Type             | Notes                        |
+|-------|------------------|------------------------------|
+| `8`   | `int8_t`         | Signed 8-bit integer         |
+| `16`  | `int16_t`        | Signed 16-bit, little-endian |
+| `32`  | IEEE 754 `float` | 32-bit float, little-endian  |
+
+**Sample rate (`samplerate`)**
+The complex sampling rate of the IQ stream in samples per second.
+
+**Annotation fields (`annotation_length` + `annotation_str`)**
+An optional JSON string embedded in the header for storing additional parameters. `annotation_length` holds the byte count of the ASCII string that follows.
+
+## Payload
+
+Immediately after the header, the raw or ZSTD-compressed IQ stream is appended without any framing or chunking. ZSTD is capable of re-synchronising on a stream in case of partial corruption, so chunk boundaries are not needed.
+
+## C++ implementation
+
+The full ZIQ implementation is in:
+
+```
+src-core/common/ziq.h
+src-core/common/ziq.cpp
+```
+
+<Note>
+The implementation uses **VOLK** for SIMD-accelerated sample processing. If you want to reuse the ZIQ code in your own project, you will need to either depend on VOLK or replace the VOLK calls with standard equivalents.
+</Note>
+
+The code is freely reusable under the SatDump licence terms.
+
+## Future considerations
+
+The ZIQ format was designed with extensibility in mind. Potential future additions include:
+
+- **Additional bit depths and sample formats** beyond 8, 16, and 32 bits
+- **Multiple compression algorithms** — the `is_compressed` field is currently a boolean, but could be extended to a multi-value flag (preserving `0` for uncompressed and `1` for ZSTD for backwards compatibility)
+- **Lossy compression** targeting very high compression ratios where exact sample reconstruction is not required

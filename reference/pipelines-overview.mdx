@@ -1,0 +1,90 @@
+---
+title: 'Satellite Pipelines Overview'
+description: 'Learn how SatDump pipelines work, understand input levels (baseband, frames, soft symbols), and run any pipeline from the GUI or CLI with real examples.'
+keywords: ['satdump', 'pipeline', 'satellite', 'baseband', 'frames', 'soft symbols', 'CLI', 'processing']
+---
+
+A pipeline in SatDump is a named processing chain that takes a raw satellite signal — or intermediate data at any processing level — and produces calibrated images, telemetry files, or other data products. Each pipeline is identified by a unique, case-sensitive string ID (for example, `metop_ahrpt`) and encodes every demodulation, decoding, and product-generation step needed for a particular satellite mission.
+
+## Input levels
+
+Every pipeline accepts data at one or more **input levels**, which describe how far along the processing chain your input file already is:
+
+| Level | Description |
+|---|---|
+| `baseband` | Raw IQ samples from an SDR or recording. SatDump demodulates from scratch. Requires `--samplerate` and `--baseband_format`. |
+| `soft_symbols` | Soft-decision symbols produced after demodulation, before FEC decoding. |
+| `frames` | Framed/packetized data, already demodulated and frame-synchronized. |
+
+<Note>
+Not every pipeline supports every input level. If you are unsure which levels a pipeline accepts, start with `baseband` when you have a raw recording, or check the pipeline JSON files in the `pipelines/` directory of your SatDump installation.
+</Note>
+
+## Running a pipeline from the CLI
+
+Use the `satdump pipeline` subcommand to process a file offline:
+
+```bash
+satdump pipeline [pipeline_id] [input_level] [input_file] [output_dir] [options]
+```
+
+A concrete example processing a MetOp baseband recording:
+
+```bash
+satdump pipeline metop_ahrpt baseband /home/user/metop_baseband.cs16 metop_output/ \
+  --samplerate 6e6 --baseband_format cs16
+```
+
+To see all available options for a pipeline, append `--help`:
+
+```bash
+satdump pipeline metop_ahrpt baseband --help
+```
+
+<Warning>
+Pipeline IDs are case-sensitive. `metop_ahrpt` is valid; `Metop_AHRPT` will not be recognized.
+</Warning>
+
+## Live processing from the CLI
+
+To process a live SDR stream directly from the command line:
+
+```bash
+satdump legacy live [pipeline_id] [output_dir] [options]
+```
+
+Example:
+
+```bash
+satdump legacy live metop_ahrpt metop_output/ \
+  --source airspy --samplerate 6e6 --frequency 1701.3e6 \
+  --general_gain 18 --bias --timeout 780
+```
+
+## Using pipelines in the GUI
+
+To process a recorded file in the graphical interface:
+
+1. Open **File → Processing**.
+2. Select the appropriate pipeline from the dropdown.
+3. Select your input file and set the correct input level.
+4. Verify settings such as sample rate.
+5. Click **Start**.
+
+For live SDR processing, add a recorder via **Add → Recorder**, select your SDR device, choose a pipeline, and start.
+
+## Pipeline groups
+
+The complete set of supported pipelines is split across three reference pages:
+
+<CardGroup cols={3}>
+  <Card title="Weather satellites" icon="cloud" href="/reference/pipelines-weather">
+    LEO polar-orbiting weather missions: NOAA, Meteor, MetOp, JPSS, EOS, Fengyun-3, DMSP, Landsat, and more.
+  </Card>
+  <Card title="Geostationary satellites" icon="satellite" href="/reference/pipelines-geostationary">
+    Geostationary imager and broadcast missions: GOES, Fengyun-2/4, Himawari, GK-2A, Elektro, Arktika, MSG, and GeoNetCast.
+  </Card>
+  <Card title="Other missions" icon="flask-conical" href="/reference/pipelines-other">
+    Science, deep-space, commercial, and cubesat missions: Inmarsat, SpaceX, Stereo, DSCOVR, Chandrayaan-3, and many others.
+  </Card>
+</CardGroup>

@@ -1,0 +1,115 @@
+---
+title: "Offline Baseband and Frames Processing"
+description: "Decode a saved baseband, frames file, or soft symbols recording through any SatDump pipeline using the GUI processing window or the CLI pipeline command."
+keywords: ["offline processing", "baseband decoding", "frames", "soft symbols", "pipeline"]
+---
+
+Offline processing lets you run any saved recording — a raw IQ baseband, a frames file, or soft symbols — through a SatDump pipeline at any time, without a live SDR connection. You can run multiple decoding sessions simultaneously.
+
+<Tabs>
+  <Tab title="GUI">
+    <Steps>
+      <Step title="Open the Processing window">
+        Select **File > Processing** from the menu bar, or click the **Start Processing** button on the welcome screen.
+      </Step>
+
+      <Step title="Select a pipeline">
+        Choose the pipeline that matches your recording from the **Pipeline** dropdown (for example, `metop_ahrpt` for a MetOp AHRPT baseband).
+      </Step>
+
+      <Step title="Set the input file and input level">
+        Browse to your input file. Then set the **Input Level** to match what your file contains:
+
+        | Input level | Description |
+        |---|---|
+        | `baseband` | Raw IQ samples from an SDR recording |
+        | `frames` | Demodulated and decoded frames |
+        | `soft_symbols` | Soft-decision symbols after demodulation |
+
+        <Info>
+          The correct input level depends on how far the recording was processed before it was saved. Most recordings from SDR software are `baseband`.
+        </Info>
+      </Step>
+
+      <Step title="Configure processing options">
+        Set the sample rate and baseband format to match your recording. Adjust additional options as needed — see the options reference below.
+      </Step>
+
+      <Step title="Start decoding">
+        Click **Start**. The full-screen window closes and a new **Processing** item appears in the **Root**. You can reopen the **Processing** window immediately to start additional sessions.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="CLI">
+    Use `satdump pipeline` to decode a file from the command line.
+
+    ```bash
+    satdump pipeline [pipeline_id] [input_level] [input_file] [output_file_or_directory] [additional options]
+    ```
+
+    **Example — decoding a MetOp AHRPT baseband:**
+
+    ```bash
+    satdump pipeline metop_ahrpt baseband \
+      /home/user/metop_baseband.cs16 \
+      metop_output_directory \
+      --samplerate 6e6 \
+      --baseband_format cs16
+    ```
+
+    Append `--help` to any command to print the full list of options for a specific pipeline:
+
+    ```bash
+    satdump pipeline metop_ahrpt --help
+    ```
+  </Tab>
+</Tabs>
+
+## Processing options
+
+<ParamField path="--samplerate" type="number">
+  Sample rate of the baseband in samples per second (e.g., `6e6`). Required when the input level is `baseband`.
+</ParamField>
+
+<ParamField path="--baseband_format" type="string">
+  Sample format of the input file. Must match the format used when the baseband was recorded.
+
+  | Format | Description |
+  |---|---|
+  | `cs16` | Complex signed 16-bit (SDR#, SatDump default) |
+  | `cf32` | Complex float 32-bit (GQRX) |
+  | `cu8` | Complex unsigned 8-bit (HDSDR) |
+  | `cs8` | Complex signed 8-bit |
+  | `cs32` | Complex signed 32-bit |
+  | `w8` | 8-bit wav-style |
+</ParamField>
+
+<ParamField path="--dc_block" type="boolean">
+  Remove a DC spike or DC offset from the IQ stream. Useful for hardware such as HackRF that exhibits a centre-frequency spike.
+</ParamField>
+
+<ParamField path="--iq_swap" type="boolean">
+  Swap the I and Q branches. Required when the recording was made with a downconverter or software that reverses the branch order.
+</ParamField>
+
+<ParamField path="--freq_shift" type="number">
+  Apply a frequency offset in Hz to the signal before processing. Use this to correct a calibration error or tune into a signal that is not exactly centred.
+</ParamField>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Products viewer" icon="image" href="/guides/products-viewer">
+    View, composite, and export the decoded image products.
+  </Card>
+  <Card title="Projections" icon="earth-europe" href="/guides/projections">
+    Reproject your imagery onto a geographic map.
+  </Card>
+  <Card title="Live processing" icon="radio" href="/guides/live-processing">
+    Decode signals in real time directly from your SDR.
+  </Card>
+  <Card title="Pipeline reference" icon="list" href="/reference/pipelines-overview">
+    Browse all supported satellite pipelines and their parameters.
+  </Card>
+</CardGroup>

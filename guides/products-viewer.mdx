@@ -1,0 +1,81 @@
+---
+title: "Viewing and Exporting Satellite Products"
+description: "Browse decoded satellite image products, apply RGB composites, add map overlays, and export images using the SatDump products viewer."
+keywords: ["products viewer", "satellite imagery", "composites", "image export", "map overlay", "RGB"]
+---
+
+After a pipeline finishes decoding, SatDump automatically organises the resulting satellite products in the **Root** panel and opens them for viewing. You can apply image composites, add geographic overlays, and export the results in several image formats — all without leaving the GUI.
+
+## Accessing products
+
+Once a pipeline completes, the decoded products appear in the **Root** under the satellite name. Expand the tree to find individual instruments. Selecting an instrument opens its view in the right pane.
+
+<Info>
+  Products are added automatically when the **Automatically Process Products** setting is enabled (the default). You can toggle this in **File > Settings** under **General Settings**.
+</Info>
+
+## Working with imaging instruments
+
+<Steps>
+  <Step title="Select a preset or write an expression">
+    With an imaging instrument selected, open the **Presets** dropdown to choose a predefined composite (for example, a false-colour or natural-colour view). Alternatively, type a custom expression directly into the **Expression** field to combine individual channels.
+
+    Image expressions use a simple syntax to blend and manipulate channels. See [Image expressions](/advanced/image-expressions) for a full reference.
+  </Step>
+
+  <Step title="Apply the composite">
+    Click **Apply** below the **Expression** field. The right pane updates to show the composite image.
+  </Step>
+
+  <Step title="Add map overlays (optional)">
+    Select **Current > Add Overlay** from the menu bar, then click **Apply** again. Overlays include country borders and city labels projected onto the image.
+  </Step>
+
+  <Step title="Save the image">
+    Select **Current > Save Image** from the menu bar to export the current view to disk. The output filename follows the template configured in **File > Settings**.
+  </Step>
+</Steps>
+
+## Output image formats
+
+Set the default format in **File > Settings** under **Product Image Format** (for raw instrument images) and **Processed Image Format** (for composites and processed outputs).
+
+| Format | Extension | Notes |
+|---|---|---|
+| PNG | `.png` | Recommended. Lossless, widely compatible. |
+| TIFF | `.tif`, `.tiff` | Lossless; preferred for GIS workflows. |
+| JPEG 2000 | `.j2k` | Lossless or lossy; large files. |
+| JPEG | `.jpg`, `.jpeg` | Lossy; not recommended — may degrade composites and projections. |
+| PBM | `.pbm`, `.pgm` | Very fast write; very large files. |
+| QOI | `.qoi` | Fast with compression; 8-bit only. |
+
+<Warning>
+  JPEG compression introduces artefacts that can affect the quality of composites and projections. Use PNG or TIFF unless file size is a hard constraint.
+</Warning>
+
+## Image filename templates
+
+SatDump generates output filenames from a configurable template. The default template is `$i_$c` (instrument name + composite name). You can switch to a more detailed template or define your own in **File > Settings** under **Image Filename Template**.
+
+See [Image filename template](/advanced/image-filename-template) for the full list of available variables.
+
+## Adding products to a projection
+
+To reproject an image onto a geographic map, click **Add to Proj** in the instrument view. SatDump adds the current composite or channel to a new **Projection** item in the **Others** section of the **Root**. See [Projections](/guides/projections) for the full workflow.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Projections" icon="earth-europe" href="/guides/projections">
+    Reproject imagery onto equirectangular, UTM, or other geographic maps.
+  </Card>
+  <Card title="Image expressions" icon="function" href="/advanced/image-expressions">
+    Write custom channel expressions for composites and enhancements.
+  </Card>
+  <Card title="Image filename template" icon="tag" href="/advanced/image-filename-template">
+    Customise output filenames with date, satellite, and channel variables.
+  </Card>
+  <Card title="Live processing" icon="radio" href="/guides/live-processing">
+    Receive and decode satellite signals in real time.
+  </Card>
+</CardGroup>

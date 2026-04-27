@@ -1,0 +1,199 @@
+---
+title: 'AngelScript Scripting and Post-Pipeline Automation'
+description: 'Automate SatDump pipeline post-processing with AngelScript. Learn the scripting plugin, available APIs, and how to write pipeline_done_processing scripts.'
+keywords: ['AngelScript', 'scripting', 'automation', 'pipeline', 'SatDump plugin', 'post-processing']
+---
+
+SatDump embeds the [AngelScript](https://www.angelcode.com/angelscript/) scripting engine, allowing you to automate actions that run after a pipeline finishes processing — such as generating projections, manipulating images, or executing external commands.
+
+<Note>
+Scripting is an advanced feature intended for users comfortable reading C-like code and SatDump internals. If you run into issues, the SatDump community on [Matrix](https://matrix.to/#/#satdump:matrix.org) and [Discord](https://discord.gg/ZDQeHygBSU) can help with examples and troubleshooting.
+</Note>
+
+## How scripting works
+
+The `scripting_support` plugin registers a handler for the `PipelineDoneProcessingEvent`. When a pipeline finishes, it looks for a script file at:
+
+```
+<satdump_user_path>/scripts/pipeline_done_processing.as
+```
+
+If that file exists, SatDump:
+
+1. Creates a new AngelScript engine instance
+2. Registers all SatDump APIs into the engine
+3. Exposes two global string variables to the script
+4. Compiles and runs the script's `void main()` function
+5. Shuts down the engine
+
+The two global variables available in every `pipeline_done_processing.as` script are:
+
+| Variable                     | Type     | Description                                    |
+|------------------------------|----------|------------------------------------------------|
+| `pipeline_id`                | `string` | The ID of the pipeline that just completed     |
+| `pipeline_output_directory`  | `string` | The output directory of the completed pipeline |
+
+## Enabling and disabling the trigger
+
+In **File > Settings**, the **Scripting Plugin** section shows a **Trigger Pipeline Done Processing** checkbox. Uncheck it to disable script execution without removing the script file.
+
+## Available APIs
+
+When a script runs, SatDump registers the following namespaces and types:
+
+<AccordionGroup>
+  <Accordion title="logger — logging to SatDump console">
+    All log messages appear in the SatDump console prefixed with `[AngelScript]`.
+
+    ```angelscript
+    logger::trace("message");
+    logger::debug("message");
+    logger::info("message");
+    logger::warn("message");
+    logger::error("message");
+    logger::critical("message");
+    ```
+  </Accordion>
+
+  <Accordion title="System — execute external commands">
+    ```angelscript
+    // Run a command, return exit code
+    int exec(const string &in cmd);
+
+    // Run a command, capture stdout into out, return exit code
+    int exec(const string &in cmd, string &out);
+
+    // Format a Unix timestamp using strftime format string
+    string formatTimestamp(string fmt, double timestamp);
+    ```
+
+    <Warning>
+    The two-argument form of `exec` that captures stdout is only implemented on Windows. On other platforms it raises a script exception.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="image — image creation and manipulation">
+    The `image::Image` type provides a full set of image operations:
+
+    **Construction and conversion**
+    ```angelscript
+    image::Image@ img = image::Image();
+    image::Image@ img = image::Image(bit_depth, width, height, channels);
+    img.to_rgb();
+    img.to_rgba();
+    image::Image@ img8  = img.to8bits();
+    image::Image@ img16 = img.to16bits();
+    image::Image@ imgN  = img.to_depth(bit_depth);
+    ```
+
+    **Properties**
+    ```angelscript
+    int    depth    = img.depth();
+    uint64 w        = img.width();
+    uint64 h        = img.height();
+    int    chans    = img.channels();
+    int    maxv     = img.maxval();
+    ```
+
+    **Pixel access**
+    ```angelscript
+    img.set(channel, x, y, value);       // integer
+    int v = img.get(channel, x, y);
+    img.setf(channel, x, y, value);      // float (0.0–1.0)
+    double v = img.getf(channel, x, y);
+    ```
+
+    **Drawing**
+    ```angelscript
+    img.draw_pixel(x, y, array<double>@ color);
+    img.draw_line(x0, y0, x1, y1, array<double>@ color);
+    img.draw_circle(x, y, radius, array<double>@ color);
+    img.draw_rectangle(x0, y0, x1, y1, array<double>@ color);
+    img.draw_image(channel, image::Image@ src);
+    img.draw_image_alpha(image::Image@ src);
+    ```
+
+    **Transforms**
+    ```angelscript
+    img.crop(x0, y0, x1, y1);
+    img.mirror(flip_x, flip_y);
+    img.resize(width, height);
+    img.resize_bilinear(width, height, text_mode);
+    ```
+
+    **Processing functions** (global, in `image::` namespace)
+    ```angelscript
+    image::white_balance(img);
+    image::equalize(img);
+    image::normalize(img);
+    image::linear_invert(img);
+    image::median_blur(img);
+    image::kuwahara_filter(img);
+    image::simple_despeckle(img);
+    ```
+
+    **I/O**
+    ```angelscript
+    image::load_img(img, "path/to/file.png");
+    image::save_img(img, "path/to/output.png", fast);
+    ```
+
+    **Text rendering**
+    ```angelscript
+    image::TextDrawer td;
+    td.init_font();                            // default font
+    td.init_font("path/to/font.ttf");
+    td.draw_text(img, x, y, array<double>@ color, size, "text");
+    ```
+  </Accordion>
+
+  <Accordion title="proj — geographic projection">
+    The `proj::Projection` type wraps SatDump's projection engine. Projection configuration is a JSON object following the same format documented in the [projection configuration reference](/reference/projection-config). You can assign a JSON value directly:
+
+    ```angelscript
+    nlohmann::json@ cfg = nlohmann::json();
+    // ... populate cfg with projection parameters ...
+    proj::Projection@ p = proj::Projection();
+    p = cfg;
+    p.init(true, true);   // init(forward, inverse)
+
+    double x, y;
+    geodetic::geodetic_coords_t@ coords = geodetic::geodetic_coords_t();
+    p.forward(coords, x, y);
+    p.inverse(x, y, coords);
+    ```
+
+    You can also reproject an entire image:
+
+    ```angelscript
+    image::Image@ reprojected = proj::reprojectImage(src_img, cfg);
+    ```
+  </Accordion>
+
+  <Accordion title="Standard library types">
+    The following standard AngelScript add-ons are registered:
+
+    - `string` — standard string type with utility functions
+    - `array<T>` — dynamic array template
+    - `dictionary` — key/value dictionary
+    - `nlohmann::json` — JSON object type for configuration and metadata
+  </Accordion>
+</AccordionGroup>
+
+## Minimal example script
+
+The following script logs the pipeline ID and output directory after every completed pipeline:
+
+```angelscript
+void main()
+{
+    logger::info("Pipeline finished: " + pipeline_id);
+    logger::info("Output directory: " + pipeline_output_directory);
+}
+```
+
+Place this file at `<satdump_user_path>/scripts/pipeline_done_processing.as` and ensure **Trigger Pipeline Done Processing** is checked in Settings.
+
+## Projection configuration in scripts
+
+The projection system's JSON configuration format — documented in the Projections reference — applies directly when constructing `proj::Projection` objects in scripts. All projection types (`equirec`, `stereo`, `utm`, `geos`, `tpers`, `webmerc`) and their parameters work the same way in AngelScript as they do in pipeline configuration files.

@@ -1,0 +1,94 @@
+---
+title: "What is SatDump? Open-source satellite decoder"
+description: "SatDump is a free, open-source satellite data processing tool that turns raw SDR signals into calibrated imagery and telemetry from 80+ satellite missions."
+keywords: ["satdump", "satellite", "sdr", "signal processing", "weather satellite", "open source"]
+---
+
+SatDump is a free, open-source satellite data processing application that takes raw IQ samples — captured live or from a recorded baseband — and processes them into calibrated imagery, telemetry, and other data products. It covers the full pipeline from signal demodulation through to decoded image composites, so you don't need separate tools for each step.
+
+## Who SatDump is for
+
+SatDump is designed for anyone who wants to receive and decode real satellite data: radio hobbyists receiving weather imagery, researchers processing scientific mission data, or engineers validating SDR hardware. You need a supported software-defined radio (SDR) device and an antenna appropriate for your target satellite.
+
+## Supported satellite missions
+
+SatDump ships with over 80 satellite pipeline definitions covering a wide range of missions:
+
+- **Weather satellites** — NOAA POES (HRPT, APT), Meteor-M (LRPT, HRPT), MetOp (AHRPT, DUMP), GOES (HRIT, GRB, GVAR), FengYun, MSG/Meteosat, GK-2A, Himawari, Insat, and more
+- **Earth observation** — JPSS (Suomi NPP, JPSS-2/3/4), Landsat 8/9, Sentinel-6, DMSP, GCOM, Oceansat, Proba series, and others
+- **Scientific and deep-space** — AIM, Cryosat, DSCOVR, Stereo A/B, TGO (Mars), Chandrayaan-3, Hinode, Jason-3, and more
+- **Other** — Orbcomm, Inmarsat Aero, BlueWalker 3, SpaceX (Falcon 9, Starship, Crew Dragon telemetry), and experimental work-in-progress pipelines
+
+Each pipeline definition handles demodulation, decoding, and product generation automatically once you select it and point SatDump at your input data.
+
+<Note>
+  The pipeline list grows with each release. Run `satdump pipeline --help` or check the [pipeline reference](/reference/pipelines-overview) for the current full list.
+</Note>
+
+## Supported SDR hardware
+
+SatDump includes plugin-based SDR source support for over 20 devices:
+
+| Device | Plugin |
+|--------|--------|
+| RTL-SDR | `rtlsdr_sdr_support` |
+| Airspy R2 / Mini | `airspy_sdr_support` |
+| Airspy HF+ | `airspyhf_sdr_support` |
+| HackRF One | `hackrf_sdr_support` |
+| BladeRF | `bladerf_sdr_support` |
+| LimeSDR | `limesdr_sdr_support` |
+| ADALM-PlutoSDR | `plutosdr_sdr_support` |
+| USRP (Ettus) | `usrp_sdr_support` |
+| SDRplay | `sdrplay_sdr_support` |
+| HydraSDR | `hydrasdr_sdr_support` |
+| RFNM | `rfnm_sdr_support` |
+| Fobos SDR | `fobos_sdr_support` |
+| Aaronia Spectran | `aaronia_sdr_support` |
+| Harogic | `harogic_sdr_support` |
+| SDDC (RX888 family) | `sddc_sdr_support` |
+| SoapySDR (generic) | `soapy_sdr_support` |
+| RTL-TCP (remote) | `rtltcp_support` |
+| SDR++ Server | `sdrpp_server_support` |
+| SatDump Remote | `remote_sdr_support` |
+| Network IQ source | `net_source_support` |
+
+On Android, a subset of devices is supported: RTL-SDR, Airspy, AirspyHF, LimeSDR Mini, and HackRF.
+
+## Two interfaces: GUI and CLI
+
+SatDump ships as two executables built from the same core:
+
+**`satdump-ui`** — A graphical interface with a live waterfall display, pipeline selector, recorder, satellite tracker, and image viewer. Suitable for interactive use, including live passes with automatic scheduling.
+
+**`satdump`** — A command-line interface for offline processing, live processing, baseband recording, and scripted or automated workflows. All processing features are available from the CLI without a display.
+
+Both interfaces share the same plugin system and pipeline definitions, so any pipeline available in the GUI is also available from the CLI.
+
+## Plugin architecture
+
+SatDump uses a plugin system for SDR sources, decoders, and output handlers. Each SDR device is implemented as a separate plugin that is loaded at startup. This means you only compile and ship support for the hardware you actually have, and new device or protocol support can be added without modifying the core.
+
+## Community
+
+You can get help, share passes, and follow development through the project's community channels:
+
+- **Matrix**: [#satdump:altillimity.com](https://matrix.to/#/#satdump:altillimity.com)
+- **Discord**: available as a bridge to the Matrix room at [discord.gg/ctt3M8pRYG](https://discord.gg/ctt3M8pRYG)
+- **GitHub**: [github.com/SatDump/SatDump](https://github.com/SatDump/SatDump) for issues, source, and releases
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Download or build SatDump for your platform: Windows, macOS, Linux, Android, or Docker.
+  </Card>
+  <Card title="Quick start" icon="rocket" href="/quickstart">
+    Decode your first satellite pass in minutes using the GUI or CLI.
+  </Card>
+  <Card title="Live processing" icon="radio" href="/guides/live-processing">
+    Set up your SDR device and decode a satellite pass in real time.
+  </Card>
+  <Card title="Pipeline reference" icon="list" href="/reference/pipelines-overview">
+    Browse every supported satellite pipeline with parameters and frequency information.
+  </Card>
+</CardGroup>

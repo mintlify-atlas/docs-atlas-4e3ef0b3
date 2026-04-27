@@ -1,0 +1,104 @@
+---
+title: 'Running SatDump in Docker'
+description: 'Build and run SatDump inside a Docker container using Docker Compose, with host user matching, background SDR server mode, and optional X11 GUI access.'
+keywords: ['satdump', 'docker', 'container', 'compose', 'sdr-server', 'x11', 'wsl2', 'linux']
+---
+
+Running SatDump under Docker isolates the build environment and its libraries from your host operating system. The build uses a multistage Dockerfile: a first image (`builder`) installs all `-dev` packages and compiles SatDump, and a second, smaller image (`runner`) contains only the runtime dependencies and the compiled `.deb` package. This keeps the runtime image lean, though the full disk space is still needed during the build phase.
+
+## Configure user mapping
+
+To ensure files written inside the container are owned by your host user, write your UID and GID into a `.env` file before building:
+
+```bash
+printf "HOST_UID: $(id -u)\nHOST_GID: $(id -g)\n" > .env
+```
+
+The container user is always named `satdump`, but its UID and GID will match the values you set here.
+
+## Build and run
+
+<Steps>
+  <Step title="Create the shared directory">
+    The `srv` directory is bind-mounted into the container as `/srv` and serves as the working directory for all SatDump output:
+
+    ```bash
+    mkdir -p srv
+    ```
+  </Step>
+  <Step title="Build the Docker images">
+    Build both the builder and runner images. Passing `CMAKE_BUILD_PARALLEL_LEVEL` speeds up compilation:
+
+    ```bash
+    docker compose build --build-arg CMAKE_BUILD_PARALLEL_LEVEL=8
+    ```
+  </Step>
+  <Step title="Launch a shell inside the container">
+    ```bash
+    docker compose run --rm -it satdump
+    ```
+
+    You can also pass a command directly at the end of this line instead of getting a shell, for example `docker compose run --rm -it satdump satdump --help`.
+  </Step>
+</Steps>
+
+## Running a command or service
+
+The default command started inside the container is `bash`. You can override it in two ways:
+
+- **On the command line:** append the command to `docker compose run`, e.g. `docker compose run --rm -it satdump satdump_sdr_server`.
+- **In `.env`:** set the `COMMAND` variable, for example:
+
+  ```bash
+  COMMAND: satdump_sdr_server
+  ```
+
+### Running sdr_server in the background
+
+To start the SDR server as a background service that restarts automatically on boot:
+
+```bash
+docker compose up -d
+```
+
+Check the logs at any time with:
+
+```bash
+docker compose logs -f
+```
+
+## X11 GUI support
+
+You can run `satdump-ui` inside Docker with X11 forwarding.
+
+### Enable the X11 bind mount
+
+In `docker-compose.yml`, uncomment the X11 bind mount section and set the correct source path:
+
+```yaml
+- type: 'bind'
+  source: '/tmp/.X11-unix'
+  target: '/tmp/.X11-unix'
+```
+
+<Note>
+  On Windows with **WSL2**, change the `source` path to `/run/desktop/mnt/host/wslg/.X11-unix` instead.
+</Note>
+
+### Authorize the container for X11
+
+On the host, grant local Docker containers access to your display:
+
+```bash
+xhost +local:docker
+```
+
+### Launch the GUI
+
+```bash
+docker compose run --rm -it satdump satdump-ui
+```
+
+<Warning>
+  `xhost +local:docker` grants all local Docker containers access to your X display. On a non-shared, single-user system this is generally acceptable, but be aware of the security implications on shared machines.
+</Warning>
